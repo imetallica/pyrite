@@ -18,15 +18,16 @@ defmodule Game.Mixfile do
   #
   # Type "mix help compile.app" for more information
   def application do
-    [mod: {Game, []},
-     applications: needed_apps()]
+    []
+    # [mod: {Game, []},
+    #  applications: needed_apps()]
   end
 
   defp needed_apps() do
     apps = [:logger]
 
     case Mix.env do
-      :dev -> apps ++ [:exsync]
+      :dev -> apps ++ []
       _ -> apps
     end
   end

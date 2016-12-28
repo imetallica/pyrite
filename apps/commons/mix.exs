@@ -31,7 +31,7 @@ defmodule Commons.Mixfile do
             :ecto]
 
     case Mix.env do
-      :dev -> [:exsync, :sqlite_ecto] ++ apps
+      :dev -> [:sqlite_ecto] ++ apps
       _ -> apps
     end
   end
@@ -58,7 +58,6 @@ defmodule Commons.Mixfile do
 
 
      # These are only required on development. No need to import them.
-     {:sqlite_ecto, "~> 1.1", only: :dev},
-     {:exsync, "~> 0.1", only: :dev}]
+     {:sqlite_ecto, "~> 1.1", only: :dev}]
   end
 end

@@ -26,7 +26,7 @@ defmodule Realm.Mixfile do
     apps = [:logger]
 
     case Mix.env do
-      :dev -> apps ++ [:exsync]
+      :dev -> apps ++ []
       _ -> apps
     end
   end
