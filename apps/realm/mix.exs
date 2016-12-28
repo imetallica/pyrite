@@ -45,6 +45,6 @@ defmodule Realm.Mixfile do
   #
   # Type "mix help deps" for more examples and options
   defp deps do
-    [{:commons, in_umbrella: true}, {:exsync, "~> 0.1", only: :dev}]
+    [{:commons, in_umbrella: true}]
   end
 end
