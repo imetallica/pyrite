@@ -32,7 +32,7 @@ defmodule Realm.Messages.LogonChallenge do
 
   require Logger
   use Commons.Codes.AuthCodes
-  alias Commons.{Controllers.AccountController, Models.Account, SRP}
+  alias Commons.{Models.Account, SRP}
   alias Realm.{Errors.UsernameSizeError, Messages.LogonChallenge}
 
   @type client_logon_message :: binary
@@ -123,14 +123,14 @@ defmodule Realm.Messages.LogonChallenge do
   """
   def bootstrap_identity(lc) do
     Logger.debug "Checking database"
-    case AccountController.get_by_username(lc.identity) do
+    case Account.get_by_username(lc.identity) do
       :nil ->
         Logger.info "No account found (#{lc.identity})"
         %{lc | status: :account_not_found}
 
       account ->
         Logger.info "Account found (#{lc.identity})"
-        case AccountController.banned?(account) do
+        case Account.banned?(account) do
           :suspended ->
             Logger.info "Suspended account #{lc.identity} tried to login."
             %{lc | status: :account_suspended}

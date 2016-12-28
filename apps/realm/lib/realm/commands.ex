@@ -14,7 +14,7 @@ defmodule Realm.Commands do
     nothing else.
   """
 
-  alias Commons.Controllers.AccountController
+  alias Commons.Models.Account
 
   @doc """
   Creates a new account:
@@ -24,23 +24,23 @@ defmodule Realm.Commands do
   ```create_account!(username, password, email)```
   """
   def create_account!(username, password, email) do
-    AccountController.create!(username, password, email)
+    Account.create!(username, password, email)
   end
 
   @doc """
   Bans the account with `username`.
   """
-  def permaban!(username), do: AccountController.ban!(username, :permanent)
+  def permaban!(username), do: Account.ban!(username, :permanent)
 
   @doc """
   Suspends the account with `username` until `YYYY-MM-DD HH:MM:SS`.
   """
-  def suspend!(username, time), do: AccountController.ban!(username, :temporary, time)
+  def suspend!(username, time), do: Account.ban!(username, :temporary, time)
 
   @doc """
   Removes the ban/suspension of account with `username`.
   """
-  def unban!(username), do: AccountController.unban!(username)
+  def unban!(username), do: Account.unban!(username)
 
   @doc """
   Shows the memory usage of the system.

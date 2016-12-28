@@ -33,7 +33,10 @@ defmodule Commons.SRP do
     norm_username = normalize_string(username)
     norm_password = normalize_string(password)
     hashed_up = hash([norm_username, ":", norm_password])
-    hash([salt, hashed_up]) |> from_l_to_b_endian(@sha)
+    
+    [salt, hashed_up]
+    |> hash() 
+    |> from_l_to_b_endian(@sha)
   end
 
   def get_scrambler(b_public_client, b_public_server) do
@@ -150,7 +153,9 @@ defmodule Commons.SRP do
     l_key = from_b_to_l_endian(key, 2 * @sha)
     l_m1 = from_b_to_l_endian(m1, @sha)
 
-    hash([l_public_client, l_m1, l_key]) |> from_l_to_b_endian(@sha)
+    [l_public_client, l_m1, l_key]
+    |> hash() 
+    |> from_l_to_b_endian(@sha)
   end
 
   @doc """

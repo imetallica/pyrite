@@ -14,7 +14,7 @@ defmodule Realm.Messages.LogonProof do
 
   require Logger
   use Commons.Codes.AuthCodes
-  alias Commons.{SRP, Controllers.AccountController}
+  alias Commons.{SRP, Models.Account}
   alias Realm.Messages.LogonProof
 
   defstruct [client_public_key: :nil, client_m1: :nil, session_key: :nil,
@@ -103,7 +103,7 @@ defmodule Realm.Messages.LogonProof do
         l_m2 = SRP.from_b_to_l_endian(b_m2, 160)
 
         Logger.debug "Saving the client session key"
-        AccountController.set_session_key(fsv.account_identity, lp.session_key)
+        Account.set_session_key(fsv.account_identity, lp.session_key)
 
         %{lp | password_status: :correct, m2: l_m2}
     end
