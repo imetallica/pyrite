@@ -2,4 +2,5 @@
 /cover
 /deps
 erl_crash.dump
+ttb_last_config
 *.ez
