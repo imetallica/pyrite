@@ -25,9 +25,9 @@ defmodule Pyrite.Mixfile do
   # and cannot be accessed from applications inside the apps folder
 
   defp deps do
-    [{:credo, "~> 0.5.3", only: [:dev, :test]},
-     {:earmark, "~> 1.0", only: :dev},
-     {:ex_doc, "~> 0.14.5", only: :dev},
+    [{:credo, "~> 0.8", only: [:dev, :test]},
+     {:earmark, "~> 1.2", only: :dev},
+     {:ex_doc, "~> 0.16", only: :dev},
      {:exsync, "~> 0.1", only: :dev}]
   end
 end

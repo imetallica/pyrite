@@ -8,10 +8,10 @@ defmodule Commons.Mixfile do
      config_path: "../../config/config.exs",
      deps_path: "../../deps",
      lockfile: "../../mix.lock",
-     elixir: "~> 1.2",
+     elixir: "~> 1.4",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
-     deps: deps]
+     deps: deps()]
   end
 
   # Configuration for the OTP application
@@ -23,17 +23,7 @@ defmodule Commons.Mixfile do
   end
 
   defp needed_apps() do
-    apps = [:logger,
-            :crypto,
-            # Uncomment the database you want to use
-            #:postgrex,
-            #:mariaex,
-            :ecto]
-
-    case Mix.env do
-      :dev -> [:sqlite_ecto] ++ apps
-      _ -> apps
-    end
+    [extra_applications: [:logger, :crypto]]
   end
 
   # Dependencies can be Hex packages:
@@ -50,14 +40,11 @@ defmodule Commons.Mixfile do
   #
   # Type "mix help deps" for more examples and options
   defp deps do
-    [{:ecto, "~> 1.1"},
+    [{:ecto, "~> 2.1"},
 
      # Uncomment these based on what database you desire to use.
-     #{:postgrex, "~> 0.11"},  # PostgreSQL
-     #{:mariaex,  "~> 0.7"},   # MySQL/MariaDB
-
-
-     # These are only required on development. No need to import them.
-     {:sqlite_ecto, "~> 1.1", only: :dev}]
+     #{:postgrex, ">= 0.0.0"},  # PostgreSQL
+     #{:mariaex,  ">= 0.0.0"},   # MySQL/MariaDB
+    ]
   end
 end
