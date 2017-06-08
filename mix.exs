@@ -8,7 +8,7 @@ defmodule Pyrite.Mixfile do
      source_url: "https://github.com/imetallica/pyrite",
      #homepage_url: "http://YOUR_PROJECT_HOMEPAGE",
      docs: [extras: ["README.md", "LICENSE"]],
-     deps: deps]
+     deps: deps()]
   end
 
   # Dependencies can be Hex packages:

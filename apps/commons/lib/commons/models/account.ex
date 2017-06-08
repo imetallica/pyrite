@@ -10,7 +10,7 @@ defmodule Commons.Models.Account do
   @type email :: String.t
   @type ban_type :: :permanent | :temporary
   @type ban_status :: :banned | :suspended | :not_banned
-  @type expire_datetime :: %Ecto.DateTime{}
+  @type expire_datetime :: DateTime.t
   @type session_key :: binary
 
   schema "accounts" do
@@ -18,33 +18,33 @@ defmodule Commons.Models.Account do
     field :salt,      :binary
     field :verifier,  :binary
     field :email,     :string
-    field :banned_on, Ecto.DateTime
-    field :banned_ex, Ecto.DateTime
+    field :banned_on, :utc_datetime
+    field :banned_ex, :utc_datetime
     field :session_key, :binary
 
     field :password, :string, virtual: true
 
-    timestamps
+    timestamps()
   end
   
-  defp create_account_changeset(account, params \\ :empty) do
+  defp create_account_changeset(account, params \\ %{}) do
     account
     |> cast(params, ~w(username email password), ~w())
     |> resolve_srp()
     |> unique_constraint(:username)
   end
 
-  defp ban_account_changeset(account, params \\ :empty) do
+  defp ban_account_changeset(account, params \\ %{}) do
     account
     |> cast(params, ~w(banned_on banned_ex), ~w())
     |> normalize_username()
   end
 
-  defp unban_account_changeset(account, _params \\ :empty) do
+  defp unban_account_changeset(account, _params \\ %{}) do
     account |> change(%{banned_on: :nil, banned_ex: :nil})
   end
 
-  defp set_session_key_changeset(account, params \\ :empty) do
+  defp set_session_key_changeset(account, params \\ %{}) do
     account
     |> cast(params, ~w(session_key), ~w())
   end
@@ -114,9 +114,9 @@ defmodule Commons.Models.Account do
     Logger.debug("Checking if #{Kernel.inspect(account.username)} is banned")
     if account.banned_on != :nil and 
        account.banned_ex != :nil do
-      case Ecto.DateTime.compare(account.banned_on, account.banned_ex) do
+      case DateTime.compare(account.banned_on, account.banned_ex) do
         :eq -> :banned
-        _ -> case Ecto.DateTime.compare(account.banned_ex, Ecto.DateTime.utc) do
+        _ -> case DateTime.compare(account.banned_ex, DateTime.utc_now()) do
           :lt ->
             Logger.info("Suspension on account #{account.username} has expired.")
             case Repo.update(unban_account_changeset(account)) do
@@ -143,14 +143,14 @@ defmodule Commons.Models.Account do
   def ban!(username, ban_type, expire_datetime \\ :nil) do
     case ban_type do
       :permanent ->
-        now = Ecto.DateTime.utc()
+        now = DateTime.utc_now()
         Account
         |> Repo.get_by!(username: normalize_username_param(username))
         |> ban_account_changeset(%{banned_on: now, banned_ex: now})
         |> Repo.update!
       :temporary ->
-        now = Ecto.DateTime.utc()
-        exp = Ecto.DateTime.cast!(expire_datetime)
+        now = DateTime.utc_now()
+        {:pk, exp} = DateTime.from_iso8601(expire_datetime)
 
         Account
         |> Repo.get_by!(username: normalize_username_param(username))

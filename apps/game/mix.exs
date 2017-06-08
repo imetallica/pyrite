@@ -11,7 +11,7 @@ defmodule Game.Mixfile do
      elixir: "~> 1.4",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
-     deps: deps]
+     deps: deps()]
   end
 
   # Configuration for the OTP application
@@ -21,15 +21,6 @@ defmodule Game.Mixfile do
     []
     # [mod: {Game, []},
     #  applications: needed_apps()]
-  end
-
-  defp needed_apps() do
-    apps = [:logger]
-
-    case Mix.env do
-      :dev -> apps ++ []
-      _ -> apps
-    end
   end
 
   # Dependencies can be Hex packages:

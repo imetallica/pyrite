@@ -19,11 +19,7 @@ defmodule Commons.Mixfile do
   # Type "mix help compile.app" for more information
   def application do
     [mod: {Commons, []},
-     applications: needed_apps()]
-  end
-
-  defp needed_apps() do
-    [extra_applications: [:logger, :crypto]]
+     extra_applications: [:logger, :crypto]]
   end
 
   # Dependencies can be Hex packages:
@@ -45,6 +41,8 @@ defmodule Commons.Mixfile do
      # Uncomment these based on what database you desire to use.
      #{:postgrex, ">= 0.0.0"},  # PostgreSQL
      #{:mariaex,  ">= 0.0.0"},   # MySQL/MariaDB
+
+     {:ecto_mnesia, ">= 0.0.0", only: [:dev, :test]} # Mnesia, the Erlang Database.
     ]
   end
 end
