@@ -9,4 +9,5 @@ otp_release:
   - 19.3
 install:
   - mix local.hex --force
+  - mix local.rebar --force
 script: "MIX_ENV=dev mix do deps.get, compile"
