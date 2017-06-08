@@ -7,6 +7,11 @@ config :game,
   realmlist: %{name: "Stellaris", host: "127.0.0.1", port: 8080}
 
 
+
+
+# To avoid Ecto spamming
+config :game, ecto_repos: []
+
 # This configuration is loaded before any dependency and is restricted
 # to this project. If another project depends on this project, this
 # file won't be loaded nor affect the parent project. For this reason,

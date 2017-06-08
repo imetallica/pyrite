@@ -4,8 +4,7 @@ use Mix.Config
 
 # Database configuration
 config :commons, Commons.Repo,
-  adapter: EctoMnesia.Adapter,
-  database: "data.sqlite3"
+  adapter: EctoMnesia.Adapter
 
 config :ecto_mnesia,
   host: {:system, :atom, "MNESIA_HOST", Kernel.node()},
