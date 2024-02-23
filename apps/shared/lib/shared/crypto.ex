@@ -6,37 +6,79 @@ defmodule Shared.Crypto do
 
   import Bitwise
 
-  @spec decrypt(packet :: [binary()], salt :: binary() | non_neg_integer()) :: binary()
-  def decrypt(packet, salt) when is_list(packet) and is_binary(salt) do
-    decrypt(Enum.join(packet, <<>>), {0, :erlang.binary_to_list(salt)}, <<>>)
+  @spec decrypt(packet :: binary(), salt :: binary() | non_neg_integer()) :: binary()
+  def decrypt(<<header::binary-size(6), body::binary>>, salt) when is_binary(salt) do
+    Logger.debug("Decrypting header #{inspect(header)} with size #{byte_size(header)}.")
+
+    encrypted_header =
+      do_decrypt(:binary.bin_to_list(header), {0, :binary.bin_to_list(salt)}, <<>>)
+
+    encrypted_header <> body
   end
 
-  def decrypt(packet, salt) when is_list(packet) and is_integer(salt) do
-    decrypt(Enum.join(packet, <<>>), {0, Integer.digits(salt)}, <<>>)
+  def decrypt(<<header::binary-size(6), body::binary>>, salt) when is_integer(salt) do
+    Logger.debug("Decrypting header #{inspect(header)} with size #{byte_size(header)}.")
+
+    encrypted_header =
+      do_decrypt(:binary.bin_to_list(header), {0, :binary.bin_to_list(to_string(salt))}, <<>>)
+
+    encrypted_header <> body
   end
 
-  defp decrypt(<<>>, _, acc), do: acc
+  defp do_decrypt([], _, acc), do: acc
 
-  defp decrypt(<<old_byte::size(8), rest::binary>>, {j, [head | tail]}, acc) do
-    new_byte = bxor(old_byte, j) - head
+  defp do_decrypt(
+         [old_byte | rest],
+         {j, [head | tail]},
+         acc
+       ) do
+    new_byte = bxor(old_byte - j, head)
 
-    decrypt(rest, {new_byte, tail}, <<acc::binary, new_byte::size(8)>>)
+    Logger.debug(
+      "Decrypting: #{inspect(old_byte)} -> #{inspect(new_byte)}, #{inspect(j)}, #{inspect(head)}."
+    )
+
+    do_decrypt(rest, {old_byte, tail}, <<acc::binary, new_byte::size(8)>>)
   end
 
-  @spec encrypt(packet :: [binary()], salt :: binary() | non_neg_integer()) :: binary()
-  def encrypt(packet, salt) when is_list(packet) and is_binary(salt) do
-    encrypt(Enum.join(packet, <<>>), {0, :erlang.binary_to_list(salt)}, <<>>)
+  @spec encrypt(
+          packet :: [binary()],
+          salt :: binary() | non_neg_integer(),
+          j :: integer()
+        ) :: binary()
+  def encrypt(packet, salt, j \\ 0)
+
+  def encrypt([h1, h2], salt, j) when is_binary(salt) do
+    header = h1 <> h2
+    Logger.debug("Encrypting header #{inspect(header)} with salt #{inspect(salt)}.")
+
+    do_encrypt(:binary.bin_to_list(header), {j, :binary.bin_to_list(salt)}, <<>>)
   end
 
-  def encrypt(packet, salt) when is_list(packet) and is_integer(salt) do
-    encrypt(Enum.join(packet, <<>>), {0, Integer.digits(salt)}, <<>>)
+  def encrypt([h1, h2], salt, j) when is_integer(salt) do
+    header = h1 <> h2
+    Logger.debug("Encrypting header #{inspect(header)} with size #{byte_size(header)}.")
+
+    do_encrypt(
+      :binary.bin_to_list(header),
+      {j, :binary.bin_to_list(Integer.to_string(salt))},
+      <<>>
+    )
   end
 
-  defp encrypt(<<>>, _, acc), do: acc
+  defp do_encrypt([], _, acc), do: acc
 
-  defp encrypt(<<old_byte::size(8), rest::binary>>, {j, [head | tail]}, acc) do
-    new_byte = bxor(head, old_byte) + j
+  defp do_encrypt(
+         [old_byte | rest],
+         {j, [head | tail]},
+         acc
+       ) do
+    new_byte = bxor(old_byte, head) + j
 
-    encrypt(rest, {new_byte, tail}, <<acc::binary, new_byte::size(8)>>)
+    Logger.debug(
+      "Encrypting: #{inspect(old_byte)} -> #{inspect(new_byte)}, #{inspect(j)}, #{inspect(head)}."
+    )
+
+    do_encrypt(rest, {new_byte, tail}, <<acc::binary, new_byte::size(8)>>)
   end
 end

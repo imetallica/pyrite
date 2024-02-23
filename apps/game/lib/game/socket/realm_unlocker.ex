@@ -2,7 +2,7 @@ defmodule Game.Socket.RealmUnlocker do
   @moduledoc """
   This module is responsible for unlocking the assigned realm.
   """
-  alias Data.RealmHandler
+  alias Shared.Data.RealmHandler
   use GenServer
 
   def start_link(realm) do

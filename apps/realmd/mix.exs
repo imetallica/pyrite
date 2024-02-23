@@ -26,8 +26,7 @@ defmodule Realmd.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:shared, in_umbrella: true},
-      {:data, in_umbrella: true}
+      {:shared, in_umbrella: true}
     ]
   end
 end

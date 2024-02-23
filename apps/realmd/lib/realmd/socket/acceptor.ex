@@ -2,7 +2,7 @@ defmodule Realmd.Socket.Acceptor do
   @moduledoc """
   The acceptor is a process who handles the interaction with the client.
   """
-  alias Data.Schemas.Account
+  alias Shared.Data.Schemas.Account
   alias Realmd.Messages.Realmlist
   alias Realmd.Messages.LogonProof
   alias Realmd.Messages.LogonChallenge

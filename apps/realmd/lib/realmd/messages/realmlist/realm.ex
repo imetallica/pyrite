@@ -1,5 +1,5 @@
 defmodule Realmd.Messages.Realmlist.Realm do
-  alias Data.Schemas.Realm, as: DBRealm
+  alias Shared.Data.Schemas.Realm, as: DBRealm
 
   defstruct [
     :icon,

@@ -2,8 +2,7 @@ defmodule Game.Socket.Protocol.Packets.CmsgAuthSession do
   @moduledoc """
   Handles the cmsg_auth_session packet.
   """
-  alias Data.AccountHandler
-  alias Data.Schemas.Account
+  alias Shared.Data.AccountHandler
   alias Shared.SupportedBuilds
   alias Game.Socket.Acceptor
   alias Game.Socket.Protocol.AccountResultValues
@@ -21,7 +20,7 @@ defmodule Game.Socket.Protocol.Packets.CmsgAuthSession do
 
   @behaviour Game.Socket.Protocol.ClientPacket
 
-  def handle_packet(packet, state = %Acceptor{}) do
+  def handle_packet(packet, state = %Acceptor{}) when is_binary(packet) do
     with {:ok, parsed = %__MODULE__{}, state} <- parse(packet, state),
          {:ok, validated = %__MODULE__{}, state} <- validate(parsed, state) do
       handle(validated, state)
@@ -35,8 +34,8 @@ defmodule Game.Socket.Protocol.Packets.CmsgAuthSession do
        ) do
     {username, rest} = parse_username(rest, <<>>)
 
-    <<client_seed::unsigned-little-integer-size(32), client_proof::binary-size(20),
-      _::unsigned-little-integer-size(32), _::binary>> = rest
+    <<client_seed::unsigned-little-integer-size(32), client_proof::little-binary-size(20),
+      _::unsigned-little-integer-size(32), _::little-binary>> = rest
 
     Logger.debug(
       "Received cmsg_auth_session packet with username #{username} client seed #{client_seed} and proof #{inspect(client_proof)}."
@@ -51,12 +50,17 @@ defmodule Game.Socket.Protocol.Packets.CmsgAuthSession do
          client_seed: client_seed,
          client_proof: client_proof,
          build: build
-       }, state}
+       },
+       %Acceptor{
+         state
+         | client_seed: client_seed,
+           client_proof: client_proof
+       }}
     else
       Logger.error("Session already exists for the player: #{username}.")
 
       {:error, SmsgAuthResponse.new(result: AccountResultValues.auth_already_online()),
-       %Acceptor{state | encryption_salt: client_seed, encryption_proof: client_proof}}
+       %Acceptor{state | client_seed: client_seed, client_proof: client_proof}}
     end
   end
 
@@ -75,46 +79,77 @@ defmodule Game.Socket.Protocol.Packets.CmsgAuthSession do
       not String.printable?(packet.username) ->
         Logger.error("Malformed packet: #{inspect(packet.username)}.")
 
-        {:error, SmsgAuthResponse.new(result: AccountResultValues.auth_reject()), state}
+        {:error, SmsgAuthResponse.new(result: AccountResultValues.auth_reject()),
+         %Acceptor{
+           state
+           | client_seed: packet.client_seed,
+             client_proof: packet.client_proof
+         }}
 
       packet.build not in SupportedBuilds.versions() ->
         Logger.warning("Client build not supported: #{packet.build}.")
 
-        {:error, SmsgAuthResponse.new(result: AccountResultValues.auth_version_mismatch()), state}
+        {:error, SmsgAuthResponse.new(result: AccountResultValues.auth_version_mismatch()),
+         %Acceptor{
+           state
+           | client_seed: packet.client_seed,
+             client_proof: packet.client_proof
+         }}
 
       :otherwise ->
-        {:ok, packet, state}
+        {:ok, packet,
+         %Acceptor{
+           state
+           | client_seed: packet.client_seed,
+             client_proof: packet.client_proof
+         }}
     end
   end
+
+  # @n <<0x894B645E89E1535BBDAD5B8B290650530801B18EBFBF5E8FAB3C82872A3E9BB7::unsigned-big-integer-size(
+  #        256
+  #      )>>
+
+  # @g <<7::size(8)>>
 
   defp handle(%__MODULE__{} = packet, state = %Acceptor{}) do
     account = AccountHandler.get_by_username(packet.username)
 
-    cond do
-      is_nil(account) ->
-        Logger.warning("Account not found: #{packet.username}.")
+    if is_nil(account) do
+      Logger.warning("Account not found: #{packet.username}.")
 
-        {:error, SmsgAuthResponse.new(result: AccountResultValues.auth_unknown_account()), state}
+      {:error, SmsgAuthResponse.new(result: AccountResultValues.auth_unknown_account()), state}
+    else
+      # v = account.verifier
+      # s = account.salt
+      key = account.session_key
 
-      AccountHandler.banned?(account) ->
-        Logger.warning("Account is banned: #{packet.username}.")
+      # TODO: Handle sha check of the client.
 
-        {:error, SmsgAuthResponse.new(result: AccountResultValues.auth_banned()), state}
+      cond do
+        AccountHandler.banned?(account) ->
+          Logger.warning("Account is banned: #{packet.username}.")
 
-      AccountHandler.suspended?(account) ->
-        Logger.warning("Account is suspended: #{packet.username}.")
+          {:error, SmsgAuthResponse.new(result: AccountResultValues.auth_banned()),
+           %Acceptor{state | session_key: key}}
 
-        {:error, SmsgAuthResponse.new(result: AccountResultValues.auth_suspended()), state}
+        AccountHandler.suspended?(account) ->
+          Logger.warning("Account is suspended: #{packet.username}.")
 
-      :otherwise ->
-        Logger.debug("Account found: #{packet.username}.")
+          {:error, SmsgAuthResponse.new(result: AccountResultValues.auth_suspended()),
+           %Acceptor{state | session_key: key}}
 
-        do_handle(account, packet, state)
+        :otherwise ->
+          Logger.debug("Account found: #{packet.username}.")
+
+          {:ok,
+           SmsgAuthResponse.new(
+             result: AccountResultValues.auth_ok(),
+             billing_time: 0,
+             billing_flags: 0,
+             billing_rested: 0
+           ), %Acceptor{state | session_key: key}}
+      end
     end
-  end
-
-  defp do_handle(account = %Account{}, packet = %__MODULE__{}, state = %Acceptor{}) do
-    # TODO: implement
-    {:ok, SmsgAuthResponse.new(result: AccountResultValues.auth_ok()), state}
   end
 end

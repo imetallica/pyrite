@@ -1,11 +1,11 @@
-defmodule Data.AccountHandler do
+defmodule Shared.Data.AccountHandler do
   @moduledoc """
   Module responsible for handling account related operations.
   """
-  alias Data.Repo
-  alias Data.Schemas.Account
   alias Ecto.Changeset
   alias Shared.Auth.SRP6
+  alias Shared.Data.Repo
+  alias Shared.Data.Schemas.Account
 
   require Logger
 

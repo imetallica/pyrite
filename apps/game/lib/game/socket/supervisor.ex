@@ -2,7 +2,7 @@ defmodule Game.Socket.Supervisor do
   @moduledoc """
   This module is responsible for managing the socket connections to the realmd server.
   """
-  alias Data.RealmHandler
+  alias Shared.Data.RealmHandler
   use Supervisor
 
   def start_link(args) do

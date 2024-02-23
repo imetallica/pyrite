@@ -1,9 +1,10 @@
-defmodule Data.Schemas.Account do
+defmodule Shared.Data.Schemas.Account do
   @moduledoc """
   The schema for the accounts table.
   """
-  use Ecto.Schema
   alias Ecto.Changeset
+
+  use Ecto.Schema
 
   @type t() :: %__MODULE__{
           id: integer() | nil,

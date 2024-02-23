@@ -3,7 +3,7 @@ defmodule Realmd.Messages.Realmlist do
   Module responsible for handling the realmlist message.
   """
   alias Realmd.Socket.Acceptor
-  alias Data.RealmHandler
+  alias Shared.Data.RealmHandler
   alias Realmd.Messages.Realmlist.Realm
   alias Realmd.Socket.Opcodes
   require Logger

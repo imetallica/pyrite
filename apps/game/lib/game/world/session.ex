@@ -2,8 +2,8 @@ defmodule Game.World.Session do
   @moduledoc """
   Player session in the world.
   """
-  alias Data.AccountHandler
-  alias Data.Schemas.Account
+  alias Shared.Data.AccountHandler
+  alias Shared.Data.Schemas.Account
   require Logger
 
   use GenServer

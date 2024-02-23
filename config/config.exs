@@ -9,10 +9,10 @@
 # move said applications out of the umbrella.
 import Config
 
-config :data,
-  ecto_repos: [Data.Repo]
+config :shared,
+  ecto_repos: [Shared.Data.Repo]
 
-config :data, Data.Repo,
+config :shared, Shared.Data.Repo,
   adapter: Ecto.Adapters.Postgres,
   database: "pyrite_dev",
   username: "postgres",

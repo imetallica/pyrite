@@ -1,9 +1,10 @@
-defmodule Data.Schemas.Realm do
+defmodule Shared.Data.Schemas.Realm do
   @moduledoc """
   The schema for the realmlist table.
   """
-  alias Ecto.Changeset
   use Ecto.Schema
+
+  alias Ecto.Changeset
 
   @type t() :: %__MODULE__{
           name: String.t() | nil,

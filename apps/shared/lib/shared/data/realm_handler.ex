@@ -1,11 +1,11 @@
-defmodule Data.RealmHandler do
+defmodule Shared.Data.RealmHandler do
   @moduledoc """
   This module is responsible for handling the realm data.
   """
-  alias Data.Repo
-  alias Data.Schemas.Account
-  alias Data.Schemas.Realm
   alias Ecto.Changeset
+  alias Shared.Data.Repo
+  alias Shared.Data.Schemas.Account
+  alias Shared.Data.Schemas.Realm
 
   import Ecto.Query
 

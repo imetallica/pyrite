@@ -2,19 +2,25 @@ defmodule Game.Socket.Protocol.Packets.SmsgAuthResponse do
   @moduledoc """
   It is a response to CMSG_AUTH_SESSION. It is followed by a CMSG_CHAR_ENUM from the client.
   """
-  alias Shared.Crypto
   alias Game.Socket.Protocol.AccountResultValues
   alias Game.Socket.Protocol.Opcodes
 
   @type t() :: %__MODULE__{
-          opcode: binary(),
-          result: binary(),
+          opcode: 0x1EE,
+          result:
+            AccountResultValues.auth_ok()
+            | AccountResultValues.auth_wait_queue()
+            | AccountResultValues.auth_unknown_account()
+            | AccountResultValues.auth_banned()
+            | AccountResultValues.auth_suspended()
+            | AccountResultValues.auth_version_mismatch()
+            | AccountResultValues.auth_reject(),
           # If the result is AUTH_OK or AUTH_WAIT_QUEUE this segment is required.
           billing_time: binary(),
           billing_flags: binary(),
           billing_rested: binary(),
           # If the result is AUTH_WAIT_QUEUE this segment is required.
-          queue_position: binary()
+          queue_position: non_neg_integer() | nil
         }
 
   @enforce_keys [:result]
@@ -35,6 +41,8 @@ defmodule Game.Socket.Protocol.Packets.SmsgAuthResponse do
 
   defimpl Shared.BinaryPacketWithEncryptedHeaders do
     alias Game.Socket.Protocol.Packets.SmsgAuthResponse
+    alias Shared.BinaryData
+    alias Shared.Crypto
 
     @auth_ok AccountResultValues.auth_ok()
     @auth_wait_queue AccountResultValues.auth_wait_queue()
@@ -79,6 +87,8 @@ defmodule Game.Socket.Protocol.Packets.SmsgAuthResponse do
     end
 
     defp encrypt_header(packet, encryption_key) do
+      encryption_key = BinaryData.to_little_endian(encryption_key, byte_size(encryption_key) * 8)
+
       [
         Crypto.encrypt(Enum.take(packet, 2), encryption_key)
         | Enum.slice(packet, 2..Enum.count(packet))

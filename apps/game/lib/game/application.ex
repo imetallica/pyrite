@@ -2,7 +2,7 @@ defmodule Game.Application do
   # See https://hexdocs.pm/elixir/Application.html
   # for more information on OTP Applications
   @moduledoc false
-  alias Data.RealmHandler
+  alias Shared.Data.RealmHandler
   require Logger
   use Application
 

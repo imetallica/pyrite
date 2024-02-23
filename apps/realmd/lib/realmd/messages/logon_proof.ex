@@ -9,7 +9,7 @@ defmodule Realmd.Messages.LogonProof do
   TODO: In this step, add support for checking WoW client version and patch handling.
   -----------------------------------------------------------------------------------
   """
-  alias Data.AccountHandler
+  alias Shared.Data.AccountHandler
   alias Shared.SupportedBuilds
   alias Realmd.Socket.Acceptor
   alias Realmd.Socket.Opcodes
