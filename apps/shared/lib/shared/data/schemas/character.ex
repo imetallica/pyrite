@@ -151,10 +151,16 @@ defmodule Shared.Data.Schemas.Character do
   def changeset(mod \\ %__MODULE__{}, params) when is_map(params) do
     mod
     |> Changeset.cast(params, @permitted)
-    |> Changeset.cast_embed(:position, with: &position_changeset/2)
+    |> Changeset.cast_embed(:position, with: &position_changeset/2, on_replace: :update)
     |> Changeset.validate_required(@required)
     |> Changeset.unique_constraint([:name])
     |> Changeset.foreign_key_constraint(:account_id)
     |> Changeset.check_constraint(:stable_slots, name: :max_stable_slots)
+  end
+
+  defp position_changeset(mod, params) when is_map(params) do
+    mod
+    |> Changeset.cast(params, ~w(x y z orientation)a)
+    |> Changeset.validate_required(~w(x y z orientation)a)
   end
 end
