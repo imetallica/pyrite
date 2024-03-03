@@ -5,6 +5,10 @@ defmodule Game.Socket.Protocol.Packets.CmsgCharEnum do
   successful SMSG_AUTH_RESPONSE.
   """
   alias Game.Socket.Acceptor
+  alias Game.Socket.Protocol.Packets.SmsgCharEnum
+  alias Shared.Data.CharacterHandler
+  alias Shared.Data.Schemas.Character
+  alias Shared.Data.Schemas.Pet
 
   require Logger
 
@@ -12,5 +16,24 @@ defmodule Game.Socket.Protocol.Packets.CmsgCharEnum do
 
   def handle_packet(_, acceptor = %Acceptor{}) do
     Logger.debug("Handling CMSG_CHAR_ENUM")
+
+    acceptor.session.account
+    |> CharacterHandler.all()
+    |> Enum.take(10)
+    |> then(fn characters ->
+      Enum.reduce(
+        characters,
+        %SmsgCharEnum{amount_of_characters: Enum.count(characters), characters: []},
+        fn dbc = %Character{}, acc = %SmsgCharEnum{} ->
+          char = %SmsgCharEnum.Character{
+            guid: dbc.id,
+            name: dbc.name,
+            first_login: Character.map(:cinematic, dbc.cinematic)
+          }
+
+          %SmsgCharEnum{acc | characters: [char | acc.characters]}
+        end
+      )
+    end)
   end
 end
