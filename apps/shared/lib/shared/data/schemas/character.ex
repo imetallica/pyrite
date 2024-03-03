@@ -4,11 +4,13 @@ defmodule Shared.Data.Schemas.Character do
   """
   alias Ecto.Changeset
   alias Shared.Data.Schemas.Account
+  alias Shared.Data.Schemas.Pet
 
   use Ecto.Schema
 
   schema "characters" do
     belongs_to(:account, Account)
+    has_many(:pets, Pet)
 
     embeds_one :position, Position do
       field(:x, :float, default: 0.0)
@@ -82,8 +84,8 @@ defmodule Shared.Data.Schemas.Character do
     field(:death_expiration_time, :utc_datetime)
 
     embeds_one :honour, Honour do
-      field(:highest_rank, Ecto.Enum, values: [])
-      field(:standing, Ecto.Enum, values: [])
+      field(:highest_rank, Ecto.Enum, values: [none: 0], default: :none)
+      field(:standing, Ecto.Enum, values: [none: 0], default: :none)
       field(:rating, :float, default: 0.0)
       field(:honourable_kills, :integer, default: 0)
       field(:dishonourable_kills, :integer, default: 0)
@@ -148,10 +150,33 @@ defmodule Shared.Data.Schemas.Character do
 
   @required @permitted -- ~w(taximask taxipath)a
 
+  def map(key, value) when is_atom(key) and is_atom(value) do
+    Keyword.get(Ecto.Enum.mappings(__MODULE__, key), value)
+  end
+
   def changeset(mod \\ %__MODULE__{}, params) when is_map(params) do
     mod
     |> Changeset.cast(params, @permitted)
-    |> Changeset.cast_embed(:position, with: &position_changeset/2, on_replace: :update)
+    |> Changeset.cast_embed(:position,
+      with: &position_changeset/2,
+      on_replace: :update,
+      required: true
+    )
+    |> Changeset.cast_embed(:transport,
+      with: &transport_changeset/2,
+      on_replace: :update,
+      required: true
+    )
+    |> Changeset.cast_embed(:honour,
+      with: &honour_changeset/2,
+      on_replace: :update,
+      required: true
+    )
+    |> Changeset.cast_embed(:current_stats,
+      with: &current_stats_changeset/2,
+      on_replace: :update,
+      required: true
+    )
     |> Changeset.validate_required(@required)
     |> Changeset.unique_constraint([:name])
     |> Changeset.foreign_key_constraint(:account_id)
@@ -162,5 +187,31 @@ defmodule Shared.Data.Schemas.Character do
     mod
     |> Changeset.cast(params, ~w(x y z orientation)a)
     |> Changeset.validate_required(~w(x y z orientation)a)
+  end
+
+  defp transport_changeset(mod, params) when is_map(params) do
+    mod
+    |> Changeset.cast(params, ~w(x y z orientation identification)a)
+    |> Changeset.validate_required(~w(x y z orientation identification)a)
+  end
+
+  defp honour_changeset(mod, params) when is_map(params) do
+    mod
+    |> Changeset.cast(
+      params,
+      ~w(highest_rank standing rating honourable_kills dishonourable_kills)a
+    )
+    |> Changeset.validate_required(
+      ~w(highest_rank standing rating honourable_kills dishonourable_kills)a
+    )
+  end
+
+  defp current_stats_changeset(mod, params) when is_map(params) do
+    mod
+    |> Changeset.cast(
+      params,
+      ~w(drunk health mana rage pet_focus energy pet_happiness)a
+    )
+    |> Changeset.validate_required(~w(drunk health mana rage pet_focus energy pet_happiness)a)
   end
 end

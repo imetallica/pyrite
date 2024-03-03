@@ -3,7 +3,7 @@ defmodule Shared.Data.Repo.Migrations.CreateCharactersTable do
 
   def change do
     create table(:characters) do
-      add :account_id, :integer, references(:accounts, on_delete: :delete_all), null: false
+      add :account_id, references(:accounts, on_delete: :delete_all), null: false
       add :position, :jsonb, null: false
       add :name, :string, null: false, default: ""
       add :race, :integer, null: false, default: 0
