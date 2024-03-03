@@ -1,6 +1,8 @@
 defmodule Game.World.Timer do
   @moduledoc """
   The timer process for the world.
+
+  TODO: Think if we can instead of updating ETS just pubsub world ticks everywhere.
   """
   require Logger
   use GenServer
