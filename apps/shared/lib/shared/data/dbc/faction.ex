@@ -54,7 +54,7 @@ defmodule Shared.Data.Dbc.Faction do
       reputation_class: %ReputationClass{mask1: 0, mask2: 0, mask3: 0, mask4: 0},
       reputation_base: %ReputationBase{mask1: 0, mask2: 0, mask3: 0, mask4: 0},
       reputation_flag: %ReputationFlag{mask1: 0, mask2: 0, mask3: 0, mask4: 0},
-      parent_faction: zero(),
+      parent_faction: none(),
       name: %TranslatableString{en: "PLAYER, Human"}
     }
 
@@ -65,7 +65,7 @@ defmodule Shared.Data.Dbc.Faction do
       reputation_class: %ReputationClass{mask1: 0, mask2: 0, mask3: 0, mask4: 0},
       reputation_base: %ReputationBase{mask1: 0, mask2: 0, mask3: 0, mask4: 0},
       reputation_flag: %ReputationFlag{mask1: 0, mask2: 0, mask3: 0, mask4: 0},
-      parent_faction: zero(),
+      parent_faction: none(),
       name: %TranslatableString{en: "PLAYER, Orc"}
     }
 
@@ -76,7 +76,7 @@ defmodule Shared.Data.Dbc.Faction do
       reputation_class: %ReputationClass{mask1: 0, mask2: 0, mask3: 0, mask4: 0},
       reputation_base: %ReputationBase{mask1: 0, mask2: 0, mask3: 0, mask4: 0},
       reputation_flag: %ReputationFlag{mask1: 0, mask2: 0, mask3: 0, mask4: 0},
-      parent_faction: zero(),
+      parent_faction: none(),
       name: %TranslatableString{en: "PLAYER, Dwarf"}
     }
 
@@ -87,7 +87,7 @@ defmodule Shared.Data.Dbc.Faction do
       reputation_class: %ReputationClass{mask1: 0, mask2: 0, mask3: 0, mask4: 0},
       reputation_base: %ReputationBase{mask1: 0, mask2: 0, mask3: 0, mask4: 0},
       reputation_flag: %ReputationFlag{mask1: 0, mask2: 0, mask3: 0, mask4: 0},
-      parent_faction: zero(),
+      parent_faction: none(),
       name: %TranslatableString{en: "PLAYER, Night Elf"}
     }
 
@@ -98,7 +98,7 @@ defmodule Shared.Data.Dbc.Faction do
       reputation_class: %ReputationClass{mask1: 0, mask2: 0, mask3: 0, mask4: 0},
       reputation_base: %ReputationBase{mask1: 0, mask2: 0, mask3: 0, mask4: 0},
       reputation_flag: %ReputationFlag{mask1: 0, mask2: 0, mask3: 0, mask4: 0},
-      parent_faction: zero(),
+      parent_faction: none(),
       name: %TranslatableString{en: "PLAYER, Undead"}
     }
 
@@ -109,7 +109,7 @@ defmodule Shared.Data.Dbc.Faction do
       reputation_class: %ReputationClass{mask1: 0, mask2: 0, mask3: 0, mask4: 0},
       reputation_base: %ReputationBase{mask1: 0, mask2: 0, mask3: 0, mask4: 0},
       reputation_flag: %ReputationFlag{mask1: 0, mask2: 0, mask3: 0, mask4: 0},
-      parent_faction: zero(),
+      parent_faction: none(),
       name: %TranslatableString{en: "PLAYER, Tauren"}
     }
 
@@ -120,7 +120,7 @@ defmodule Shared.Data.Dbc.Faction do
       reputation_class: %ReputationClass{mask1: 0, mask2: 0, mask3: 0, mask4: 0},
       reputation_base: %ReputationBase{mask1: 0, mask2: 0, mask3: 0, mask4: 0},
       reputation_flag: %ReputationFlag{mask1: 0, mask2: 0, mask3: 0, mask4: 0},
-      parent_faction: zero(),
+      parent_faction: none(),
       name: %TranslatableString{en: "Creature"}
     }
 
@@ -131,7 +131,7 @@ defmodule Shared.Data.Dbc.Faction do
       reputation_class: %ReputationClass{mask1: 0, mask2: 0, mask3: 0, mask4: 0},
       reputation_base: %ReputationBase{mask1: 0, mask2: 0, mask3: 0, mask4: 0},
       reputation_flag: %ReputationFlag{mask1: 0, mask2: 0, mask3: 0, mask4: 0},
-      parent_faction: zero(),
+      parent_faction: none(),
       name: %TranslatableString{en: "PLAYER, Gnome"}
     }
 
@@ -142,7 +142,7 @@ defmodule Shared.Data.Dbc.Faction do
       reputation_class: %ReputationClass{mask1: 0, mask2: 0, mask3: 0, mask4: 0},
       reputation_base: %ReputationBase{mask1: 0, mask2: 0, mask3: 0, mask4: 0},
       reputation_flag: %ReputationFlag{mask1: 0, mask2: 0, mask3: 0, mask4: 0},
-      parent_faction: zero(),
+      parent_faction: none(),
       name: %TranslatableString{en: "PLAYER, Troll"}
     }
 
@@ -153,9 +153,9 @@ defmodule Shared.Data.Dbc.Faction do
       reputation_class: %ReputationClass{mask1: 0, mask2: 0, mask3: 0, mask4: 0},
       reputation_base: %ReputationBase{mask1: 0, mask2: 0, mask3: 0, mask4: 0},
       reputation_flag: %ReputationFlag{mask1: 0, mask2: 0, mask3: 0, mask4: 0},
-      parent_faction: zero(),
+      parent_faction: none(),
       name: %TranslatableString{en: "Monster"}
     }
 
-  defp zero, do: %__MODULE__{id: 0}
+  defp none, do: %__MODULE__{id: 0}
 end
