@@ -73,23 +73,57 @@ defmodule Game.Socket.Acceptor do
   end
 
   def handle_info({:tcp, socket, msg}, state = %__MODULE__{encrypted?: false}) do
-    Logger.debug("Received packet: #{inspect(msg)}.")
+    start = System.system_time(:millisecond)
+    Logger.debug("[UNENCRYPTED] Received packet: #{inspect(msg)}.")
 
     # TODO: Handle encrypted packets.
-    with :ok <- :inet.setopts(socket, active: :once),
+    with :ok <-
+           :telemetry.execute(
+             [:game, :acceptor, :begin],
+             %{
+               start: start
+             },
+             %{socket: state.socket}
+           ),
+         :ok <- :inet.setopts(socket, active: :once),
          {:ok, data, acceptor} <- handle_packet(msg, socket, state),
-         :ok <- :gen_tcp.send(socket, data) do
+         :ok <- :gen_tcp.send(socket, data),
+         :ok <-
+           :telemetry.execute(
+             [:game, :acceptor, :send],
+             %{
+               latency: System.system_time(:millisecond) - start
+             },
+             %{socket: state.socket}
+           ) do
       {:noreply, acceptor}
     end
   end
 
   # Here, the packets are already encrypted, so we need to decrypt.
   def handle_info({:tcp, socket, msg}, state = %__MODULE__{encrypted?: true}) do
-    Logger.debug("[AUTHENTICATED] Received packet: #{inspect(msg)}.")
+    start = System.system_time(:millisecond)
+    Logger.debug("[ENCRYPTED] Received packet: #{inspect(msg)}.")
 
-    with :ok <- :inet.setopts(socket, active: :once),
+    with :ok <-
+           :telemetry.execute(
+             [:game, :acceptor, :begin],
+             %{
+               start: start
+             },
+             %{socket: state.socket}
+           ),
+         :ok <- :inet.setopts(socket, active: :once),
          {:ok, data, acceptor} <- handle_encrypted_packet(msg, socket, state),
-         :ok <- :gen_tcp.send(socket, data) do
+         :ok <- :gen_tcp.send(socket, data),
+         :ok <-
+           :telemetry.execute(
+             [:game, :acceptor, :send],
+             %{
+               latency: System.system_time(:millisecond) - start
+             },
+             %{socket: state.socket}
+           ) do
       {:noreply, acceptor}
     end
   end
