@@ -14,3 +14,7 @@ An modern, alternative to well known emulators, written in the Elixir Programmin
 - Freedom: All work is released under the GPL, so everyone is free to use and contribute.
 - Fun: To enjoy coding a solution for a challenging project.
 - Safe: As a open source project, it must be a safe space for **every single person**.
+
+## Contact us
+
+- Discord: https://discord.gg/YnJcXRHu
