@@ -46,9 +46,7 @@ defmodule Shared.Crypto do
        ) do
     new_byte = bxor(old_byte - j, head)
 
-    Logger.debug(
-      "Decrypting: #{inspect(old_byte)} -> #{inspect(new_byte)}, #{inspect(j)}, #{inspect(head)}."
-    )
+    Logger.debug("Decrypting: #{inspect(old_byte)} -> #{inspect(new_byte)}.")
 
     do_decrypt(rest, {old_byte, tail}, <<acc::binary, new_byte::size(8)>>)
   end
@@ -87,9 +85,7 @@ defmodule Shared.Crypto do
        ) do
     new_byte = bxor(old_byte, head) + j
 
-    Logger.debug(
-      "Encrypting: #{inspect(old_byte)} -> #{inspect(new_byte)}, #{inspect(j)}, #{inspect(head)}."
-    )
+    Logger.debug("Encrypting: #{inspect(old_byte)} -> #{inspect(new_byte)}.")
 
     do_encrypt(rest, {new_byte, tail}, <<acc::binary, new_byte::size(8)>>)
   end
