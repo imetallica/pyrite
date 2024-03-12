@@ -60,12 +60,29 @@ defmodule Game.Socket.Acceptor do
   end
 
   def handle_continue(:send_smsg_auth_challenge, socket) do
-    with :ok <- :inet.setopts(socket, active: :once),
-         {:ok, address} <- :inet.gethostname(socket) do
-      Logger.debug("[SMSG_AUTH_CHALLENGE] Sending packet to: #{inspect(address)}.")
+    start = System.system_time(:millisecond)
 
-      auth_challenge = SmsgAuthChallenge.new()
-      :ok = :gen_tcp.send(socket, SmsgAuthChallenge.to_binary(auth_challenge))
+    with :ok <-
+           :telemetry.execute(
+             [:game, :acceptor, :begin],
+             %{
+               start: start
+             },
+             %{socket: socket}
+           ),
+         :ok <- :inet.setopts(socket, active: :once),
+         {:ok, address} <- :inet.gethostname(socket),
+         auth_challenge = SmsgAuthChallenge.new(),
+         :ok = :gen_tcp.send(socket, SmsgAuthChallenge.to_binary(auth_challenge)),
+         :ok <-
+           :telemetry.execute(
+             [:game, :acceptor, :send],
+             %{
+               latency: System.system_time(:millisecond) - start
+             },
+             %{socket: socket}
+           ) do
+      Logger.debug("[SMSG_AUTH_CHALLENGE] Sending packet to: #{inspect(address)}.")
 
       {:noreply,
        %__MODULE__{address: to_string(address), seed: auth_challenge.challenge, socket: socket}}
