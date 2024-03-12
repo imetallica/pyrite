@@ -113,6 +113,7 @@ defmodule Game.Socket.Acceptor do
              },
              %{socket: state.socket}
            ) do
+      Logger.debug("[UNENCRYPTED] Sent packet: #{inspect(data)}.")
       {:noreply, acceptor}
     end
   end
@@ -141,6 +142,7 @@ defmodule Game.Socket.Acceptor do
              },
              %{socket: state.socket}
            ) do
+      Logger.debug("[ENCRYPTED] Sent packet: #{inspect(data)}.")
       {:noreply, acceptor}
     end
   end
