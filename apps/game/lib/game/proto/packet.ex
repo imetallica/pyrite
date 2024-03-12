@@ -9,6 +9,8 @@ defmodule Game.Proto.Packet do
   alias Game.Proto.Packet.CmsgPing
   alias Game.Socket.Acceptor
 
+  require Logger
+
   @cmsg_auth_session Opcodes.cmsg_auth_session()
   @cmsg_char_enum Opcodes.cmsg_char_enum()
   @cmsg_ping Opcodes.cmsg_ping()
@@ -34,5 +36,17 @@ defmodule Game.Proto.Packet do
         state = %Acceptor{}
       ) do
     CmsgCharEnum.handle_packet(nil, state)
+  end
+
+  def handle(
+        <<_::unsigned-big-integer-size(16), opcode::unsigned-little-integer-size(32),
+          rest::binary>>,
+        %Acceptor{}
+      ) do
+    Logger.warning(
+      "Unknown packet with opcode: #{inspect(opcode)} and payload: #{inspect(rest)}."
+    )
+
+    :ignore
   end
 end

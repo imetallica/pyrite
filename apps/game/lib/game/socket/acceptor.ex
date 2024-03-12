@@ -6,6 +6,7 @@ defmodule Game.Socket.Acceptor do
   alias Game.Proto.Packet
   alias Shared.BinaryData
   alias Shared.Crypto
+  alias Shared.Crypto.Keystate
   alias Shared.Data.Schemas.Account
 
   use GenServer
@@ -21,7 +22,9 @@ defmodule Game.Socket.Acceptor do
     :address,
     :last_ping_time,
     :latency,
-    encrypted?: false
+    encrypted?: false,
+    key_state_encrypt: Keystate.new(),
+    key_state_decrypt: Keystate.new()
   ]
 
   @type t() :: %__MODULE__{
@@ -33,7 +36,9 @@ defmodule Game.Socket.Acceptor do
           address: :inet.hostname(),
           last_ping_time: nil | integer(),
           latency: nil | non_neg_integer(),
-          encrypted?: boolean()
+          encrypted?: boolean(),
+          key_state_encrypt: non_neg_integer(),
+          key_state_decrypt: non_neg_integer()
         }
 
   def initialize_acceptor(socket) do
@@ -91,7 +96,7 @@ defmodule Game.Socket.Acceptor do
 
   def handle_info({:tcp, socket, msg}, state = %__MODULE__{encrypted?: false}) do
     start = System.system_time(:millisecond)
-    Logger.debug("[UNENCRYPTED] Received packet: #{inspect(msg)}.")
+    Logger.debug("[UNENCRYPTED] Received packet: #{inspect(msg)} with size #{byte_size(msg)}.")
 
     # TODO: Handle encrypted packets.
     with :ok <-
@@ -113,7 +118,7 @@ defmodule Game.Socket.Acceptor do
              },
              %{socket: state.socket}
            ) do
-      Logger.debug("[UNENCRYPTED] Sent packet: #{inspect(data)}.")
+      Logger.debug("Sent packet: #{inspect(data)}.")
       {:noreply, acceptor}
     end
   end
@@ -121,7 +126,7 @@ defmodule Game.Socket.Acceptor do
   # Here, the packets are already encrypted, so we need to decrypt.
   def handle_info({:tcp, socket, msg}, state = %__MODULE__{encrypted?: true}) do
     start = System.system_time(:millisecond)
-    Logger.debug("[ENCRYPTED] Received packet: #{inspect(msg)}.")
+    Logger.debug("[ENCRYPTED] Received packet: #{inspect(msg)} with size #{byte_size(msg)}.")
 
     with :ok <-
            :telemetry.execute(
@@ -142,7 +147,7 @@ defmodule Game.Socket.Acceptor do
              },
              %{socket: state.socket}
            ) do
-      Logger.debug("[ENCRYPTED] Sent packet: #{inspect(data)}.")
+      Logger.debug("Sent packet: #{inspect(data)}.")
       {:noreply, acceptor}
     end
   end
@@ -153,10 +158,7 @@ defmodule Game.Socket.Acceptor do
   end
 
   defp handle_packet(msg, socket, state = %__MODULE__{}) do
-    with {:error, data} <- Packet.handle(msg, state),
-         :ok = :gen_tcp.send(socket, data) do
-      {:stop, :normal, state}
-    end
+    do_handle_packet(msg, socket, state)
   end
 
   defp handle_encrypted_packet(
@@ -167,11 +169,22 @@ defmodule Game.Socket.Acceptor do
     salt =
       BinaryData.to_little_endian(session_key, byte_size(session_key) * 8)
 
-    msg = Crypto.decrypt(msg, salt)
+    {msg, key_state_decrypt} = Crypto.decrypt(msg, salt, state.key_state_decrypt)
 
-    with {:error, data} <- Packet.handle(msg, state),
-         :ok = :gen_tcp.send(socket, data) do
-      {:stop, :normal, state}
+    do_handle_packet(msg, socket, %__MODULE__{state | key_state_decrypt: key_state_decrypt})
+  end
+
+  defp do_handle_packet(msg, socket, state = %__MODULE__{}) do
+    case Packet.handle(msg, state) do
+      {:error, data} ->
+        :ok = :gen_tcp.send(socket, data)
+        {:stop, :normal, state}
+
+      :ignore ->
+        {:noreply, state}
+
+      {:ok, data, state} ->
+        {:ok, data, state}
     end
   end
 end

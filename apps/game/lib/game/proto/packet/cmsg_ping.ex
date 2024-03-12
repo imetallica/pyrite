@@ -52,6 +52,10 @@ defmodule Game.Proto.Packet.CmsgPing do
        ) do
     Logger.debug("Sending PONG with sequence_id: #{sequence_id}.")
 
-    {:ok, SmsgPong.to_binary(pong, session_key), acceptor}
+    pong
+    |> SmsgPong.to_binary(session_key, acceptor.key_state_encrypt)
+    |> then(fn {data, key_state_encrypt} ->
+      {:ok, data, %Acceptor{acceptor | key_state_encrypt: key_state_encrypt}}
+    end)
   end
 end

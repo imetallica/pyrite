@@ -64,12 +64,18 @@ defmodule Game.Proto.Packet.CmsgAuthSession do
       not String.printable?(packet.username) ->
         Logger.error("Malformed packet: #{inspect(packet.username)}.")
 
-        {:error, SmsgAuthResponse.new(result: AccountResultValues.auth_reject())}
+        [result: AccountResultValues.auth_reject()]
+        |> SmsgAuthResponse.new()
+        |> SmsgAuthResponse.to_binary()
+        |> then(fn result -> {:error, result} end)
 
       packet.build not in SupportedBuilds.versions() ->
         Logger.warning("Client build not supported: #{packet.build}.")
 
-        {:error, SmsgAuthResponse.new(result: AccountResultValues.auth_version_mismatch())}
+        [result: AccountResultValues.auth_version_mismatch()]
+        |> SmsgAuthResponse.new()
+        |> SmsgAuthResponse.to_binary()
+        |> then(fn result -> {:error, result} end)
 
       :otherwise ->
         {:ok, packet}
@@ -82,7 +88,7 @@ defmodule Game.Proto.Packet.CmsgAuthSession do
 
   # @g <<7::size(8)>>
 
-  defp handle(%__MODULE__{} = packet, state = %Acceptor{}) do
+  defp handle(%__MODULE__{} = packet, acceptor = %Acceptor{}) do
     session = World.get_session(packet.username)
     account = AccountHandler.get_by_username(packet.username)
 
@@ -106,24 +112,24 @@ defmodule Game.Proto.Packet.CmsgAuthSession do
 
         [result: AccountResultValues.auth_already_online()]
         |> SmsgAuthResponse.new()
-        |> SmsgAuthResponse.to_binary(account.session_key)
-        |> then(fn result -> {:error, result} end)
+        |> SmsgAuthResponse.to_binary(account.session_key, acceptor.key_state_encrypt)
+        |> then(fn {result, _} -> {:error, result} end)
 
       AccountHandler.banned?(account) ->
         Logger.warning("Account is banned: #{packet.username}.")
 
         [result: AccountResultValues.auth_banned()]
         |> SmsgAuthResponse.new()
-        |> SmsgAuthResponse.to_binary(account.session_key)
-        |> then(fn result -> {:error, result} end)
+        |> SmsgAuthResponse.to_binary(account.session_key, acceptor.key_state_encrypt)
+        |> then(fn {result, _} -> {:error, result} end)
 
       AccountHandler.suspended?(account) ->
         Logger.warning("Account is suspended: #{packet.username}.")
 
         [result: AccountResultValues.auth_suspended()]
         |> SmsgAuthResponse.new()
-        |> SmsgAuthResponse.to_binary(account.session_key)
-        |> then(fn result -> {:error, result} end)
+        |> SmsgAuthResponse.to_binary(account.session_key, acceptor.key_state_encrypt)
+        |> then(fn {result, _} -> {:error, result} end)
 
       :otherwise ->
         Logger.debug("Account found: #{packet.username}.")
@@ -135,9 +141,15 @@ defmodule Game.Proto.Packet.CmsgAuthSession do
           billing_rested: 0
         ]
         |> SmsgAuthResponse.new()
-        |> SmsgAuthResponse.to_binary(account.session_key)
-        |> then(fn result ->
-          {:ok, result, %Acceptor{state | account: account, encrypted?: true}}
+        |> SmsgAuthResponse.to_binary(account.session_key, acceptor.key_state_encrypt)
+        |> then(fn {result, key_state_encrypt} ->
+          {:ok, result,
+           %Acceptor{
+             acceptor
+             | account: account,
+               encrypted?: true,
+               key_state_encrypt: key_state_encrypt
+           }}
         end)
     end
   end

@@ -38,8 +38,9 @@ defmodule Game.Proto.Packet.CmsgCharEnum do
         end
       )
     end)
-    |> then(fn packet ->
-      {:ok, SmsgCharEnum.to_binary(packet, account.session_key), acceptor}
+    |> SmsgCharEnum.to_binary(account.session_key, acceptor.key_state_encrypt)
+    |> then(fn {packet, key_state_encrypt} ->
+      {:ok, packet, %Acceptor{acceptor | key_state_encrypt: key_state_encrypt}}
     end)
   end
 end
