@@ -1,4 +1,4 @@
-defmodule Game.Socket.Protocol.Packets.SmsgCharEnum.Character do
+defmodule Game.Proto.Packet.SmsgCharEnum.Character do
   defstruct [
     :guid,
     :name,

@@ -1,4 +1,4 @@
-defmodule Game.Socket.Protocol.AccountResultValues do
+defmodule Game.Proto.AccountResultValues do
   @moduledoc """
   Result values used by Game Packets during authentication, character creation and login.
   """

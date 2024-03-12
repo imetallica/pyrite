@@ -1,6 +1,6 @@
-defmodule Game.Socket.Protocol.Opcodes do
+defmodule Game.Proto.Opcodes do
   @moduledoc """
-  This module contains all the opcodes used in the Game server.
+  This module contains all the opcodes used.
   """
 
   def cmsg_char_enum, do: 0x037

@@ -7,22 +7,34 @@ defmodule Shared.Crypto do
   import Bitwise
 
   @spec decrypt(packet :: binary(), salt :: binary() | non_neg_integer()) :: binary()
-  def decrypt(<<header::binary-size(6), body::binary>>, salt) when is_binary(salt) do
-    Logger.debug("Decrypting header #{inspect(header)} with size #{byte_size(header)}.")
+  def decrypt(<<encrypted_header::binary-size(6), body::binary>>, salt) when is_binary(salt) do
+    Logger.debug(
+      "Decrypting header #{inspect(encrypted_header)} with size #{byte_size(encrypted_header)}."
+    )
 
-    encrypted_header =
-      do_decrypt(:binary.bin_to_list(header), {0, :binary.bin_to_list(salt)}, <<>>)
+    header =
+      do_decrypt(:binary.bin_to_list(encrypted_header), {0, :binary.bin_to_list(salt)}, <<>>)
 
-    encrypted_header <> body
+    Logger.debug("Decrypted header: #{inspect(header)} with size #{byte_size(header)}.")
+
+    header <> body
   end
 
-  def decrypt(<<header::binary-size(6), body::binary>>, salt) when is_integer(salt) do
-    Logger.debug("Decrypting header #{inspect(header)} with size #{byte_size(header)}.")
+  def decrypt(<<encrypted_header::binary-size(6), body::binary>>, salt) when is_integer(salt) do
+    Logger.debug(
+      "Decrypting header #{inspect(encrypted_header)} with size #{byte_size(encrypted_header)}."
+    )
 
-    encrypted_header =
-      do_decrypt(:binary.bin_to_list(header), {0, :binary.bin_to_list(to_string(salt))}, <<>>)
+    header =
+      do_decrypt(
+        :binary.bin_to_list(encrypted_header),
+        {0, :binary.bin_to_list(to_string(salt))},
+        <<>>
+      )
 
-    encrypted_header <> body
+    Logger.debug("Decrypted header: #{inspect(header)} with size #{byte_size(header)}.")
+
+    header <> body
   end
 
   defp do_decrypt([], _, acc), do: acc
