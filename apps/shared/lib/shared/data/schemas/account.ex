@@ -27,10 +27,10 @@ defmodule Shared.Data.Schemas.Account do
       default: :user
     )
 
-    field(:email, :string)
-    field(:salt, :binary)
-    field(:verifier, :binary)
-    field(:session_key, :binary)
+    field(:email, :string, redact: true)
+    field(:salt, :binary, redact: true)
+    field(:verifier, :binary, redact: true)
+    field(:session_key, :binary, redact: true)
     field(:banned_on, :naive_datetime)
     field(:ban_expires_at, :naive_datetime)
 
