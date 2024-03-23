@@ -11,14 +11,14 @@ defmodule Game.Proto.Packet.SmsgCharEnum do
   require Logger
 
   @type t() :: %__MODULE__{
-          opcode: Opcodes.cmsg_auth_session(),
+          opcode: 0x1ED,
           amount_of_characters: non_neg_integer(),
           characters: []
         }
 
   @enforce_keys [:amount_of_characters, :characters]
 
-  defstruct [:amount_of_characters, opcode: Opcodes.smsg_pong(), characters: []]
+  defstruct [:amount_of_characters, opcode: Opcodes.smsg_char_enum(), characters: []]
 
   @spec new(params :: Enumerable.t()) :: t()
   def new(params), do: struct(__MODULE__, params)
@@ -26,8 +26,9 @@ defmodule Game.Proto.Packet.SmsgCharEnum do
   @spec to_binary(t(), binary(), non_neg_integer()) ::
           {[nonempty_binary(), ...], non_neg_integer()}
   def to_binary(%__MODULE__{} = packet, encryption_key, key_state) do
+    # Reverse order because well, we call Enum.reverse/1 at the end of the function
     [
-      <<packet.amount_of_characters::unsigned-little-integer-size(8)>>,
+      <<packet.amount_of_characters::unsigned-big-integer-size(8)>>,
       <<packet.opcode::unsigned-little-integer-size(16)>>
     ]
     |> add_characters(packet.characters)

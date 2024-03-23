@@ -18,6 +18,19 @@ defmodule Shared.Data.Dbc.ChrRaces do
     embeds_one(:name, TranslatableString)
   end
 
+  def all,
+    do: [
+      human(),
+      orc(),
+      dwarf(),
+      nightelf(),
+      scourge(),
+      tauren(),
+      gnome(),
+      troll(),
+      goblin()
+    ]
+
   def human,
     do: %__MODULE__{
       id: 1,

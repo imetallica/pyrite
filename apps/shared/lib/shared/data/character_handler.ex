@@ -18,4 +18,11 @@ defmodule Shared.Data.CharacterHandler do
 
     Repo.all(query)
   end
+
+  @spec create(params :: map()) :: {:ok, Character.t()} | {:error, Changeset.t()}
+  def create(params) when is_map(params) do
+    params
+    |> Character.changeset()
+    |> Repo.insert()
+  end
 end

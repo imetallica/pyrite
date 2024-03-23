@@ -35,6 +35,7 @@ defmodule Shared.Data.AccountHandler do
     Repo.get_by(Account, username: String.upcase(username))
   end
 
+  @spec suspended?(account :: Account.t()) :: boolean()
   def suspended?(%Account{banned_on: nil, ban_expires_at: nil}), do: false
 
   def suspended?(account = %Account{ban_expires_at: expiration_date}) do
@@ -53,10 +54,12 @@ defmodule Shared.Data.AccountHandler do
     end)
   end
 
+  @spec banned?(account :: Account.t()) :: boolean()
   def banned?(%Account{banned_on: nil, ban_expires_at: nil}), do: false
   def banned?(%Account{banned_on: _, ban_expires_at: nil}), do: true
   def banned?(%Account{banned_on: _, ban_expires_at: _}), do: false
 
+  @spec lift_suspension(account :: Account.t()) :: {:ok, Account.t()} | {:error, Changeset.t()}
   def lift_suspension(account = %Account{}) do
     account
     |> Changeset.change()
@@ -73,7 +76,10 @@ defmodule Shared.Data.AccountHandler do
     end)
   end
 
-  def set_session_key(username, session_key) do
+  @spec set_session_key(username :: String.t(), session_key :: String.t()) ::
+          {:ok, Account.t()} | {:error, :account_not_found}
+  def set_session_key(username, session_key)
+      when is_binary(username) and is_binary(session_key) do
     account = get_by_username(username)
 
     if is_nil(account) do

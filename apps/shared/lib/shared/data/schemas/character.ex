@@ -3,6 +3,8 @@ defmodule Shared.Data.Schemas.Character do
   The schema for the characters table.
   """
   alias Ecto.Changeset
+  alias Shared.Data.Dbc.ChrClasses
+  alias Shared.Data.Dbc.ChrRaces
   alias Shared.Data.Schemas.Account
   alias Shared.Data.Schemas.Pet
 
@@ -12,7 +14,7 @@ defmodule Shared.Data.Schemas.Character do
     belongs_to(:account, Account)
     has_many(:pets, Pet)
 
-    embeds_one :position, Position do
+    embeds_one :position, Position, primary_key: false do
       field(:x, :float, default: 0.0)
       field(:y, :float, default: 0.0)
       field(:z, :float, default: 0.0)
@@ -21,31 +23,30 @@ defmodule Shared.Data.Schemas.Character do
 
     field(:name, :string)
 
-    # TODO: Check this values in chrraces.dbc.
     field(:race, Ecto.Enum,
       values: [
-        human: 0,
-        night_elf: 1,
-        dwarf: 2,
-        gnome: 3,
-        orc: 4,
-        troll: 5,
-        tauren: 6,
-        forsaken: 7
+        human: ChrRaces.human().id,
+        nightelf: ChrRaces.nightelf().id,
+        dwarf: ChrRaces.dwarf().id,
+        gnome: ChrRaces.gnome().id,
+        orc: ChrRaces.orc().id,
+        troll: ChrRaces.troll().id,
+        tauren: ChrRaces.tauren().id,
+        forsaken: ChrRaces.scourge().id
       ]
     )
 
-    # TODO: Check this values in chrclasses.dbc.
     field(:class, Ecto.Enum,
       values: [
-        warrior: 0,
-        rogue: 1,
-        shaman: 2,
-        paladin: 3,
-        mage: 4,
-        priest: 5,
-        warlock: 6,
-        hunter: 7
+        warrior: ChrClasses.warrior().id,
+        rogue: ChrClasses.rogue().id,
+        shaman: ChrClasses.shaman().id,
+        paladin: ChrClasses.paladin().id,
+        mage: ChrClasses.mage().id,
+        priest: ChrClasses.priest().id,
+        warlock: ChrClasses.warlock().id,
+        hunter: ChrClasses.hunter().id,
+        druid: ChrClasses.druid().id
       ]
     )
 
@@ -53,8 +54,15 @@ defmodule Shared.Data.Schemas.Character do
     field(:level, :integer, default: 0)
     field(:xp, :integer, default: 0)
     field(:money, :integer, default: 0)
-    field(:player_bytes, :integer, default: 0)
-    field(:player_bytes2, :integer, default: 0)
+
+    embeds_one :look, Look, primary_key: false do
+      field(:skin, :integer, default: 0)
+      field(:face, :integer, default: 0)
+      field(:hair_style, :integer, default: 0)
+      field(:hair_colour, :integer, default: 0)
+      field(:facial_hair, :integer, default: 0)
+      field(:rest_state, Ecto.Enum, values: [rested: 0x01, normal: 0x02, unknown: 0x04])
+    end
 
     field(:map, Ecto.Enum, values: [east: 0, west: 1])
     field(:zone, Ecto.Enum, values: [])
@@ -70,7 +78,7 @@ defmodule Shared.Data.Schemas.Character do
     field(:rest_bonus, :float, default: 0.0)
     field(:reset_talents_cost, :integer, default: 0)
 
-    embeds_one :transport, Transport do
+    embeds_one :transport, Transport, primary_key: false do
       field(:x, :float, default: 0.0)
       field(:y, :float, default: 0.0)
       field(:z, :float, default: 0.0)
@@ -80,7 +88,7 @@ defmodule Shared.Data.Schemas.Character do
 
     field(:extra_flags, :integer, default: 0)
     field(:stable_slots, :integer, default: 0)
-    field(:at_login, :boolean, default: false)
+    field(:at_login, :boolean, default: true)
     field(:death_expiration_time, :utc_datetime)
 
     embeds_one :honour, Honour do
@@ -93,18 +101,18 @@ defmodule Shared.Data.Schemas.Character do
 
     field(:watched_faction, :integer, default: 0)
 
-    embeds_one :current_stats, CurrentStats do
+    embeds_one :current_stats, CurrentStats, primary_key: false do
       field(:drunk, :integer, default: 0)
       field(:health, :integer, default: 0)
-      # power 1
+      # power 0
       field(:mana, :integer, default: 0)
-      # power 2
+      # power 1
       field(:rage, :integer, default: 0)
-      # power 3
+      # power 2
       field(:pet_focus, :integer, default: 0)
-      # power 4
+      # power 3
       field(:energy, :integer, default: 0)
-      # power 5
+      # power 4
       field(:pet_happiness, :integer, default: 0)
     end
 
@@ -124,8 +132,6 @@ defmodule Shared.Data.Schemas.Character do
     level
     xp
     money
-    player_bytes
-    player_bytes2
     map
     zone
     taximask
@@ -150,7 +156,7 @@ defmodule Shared.Data.Schemas.Character do
 
   @required @permitted -- ~w(taximask taxipath)a
 
-  def map(key, value) when is_atom(key) and is_atom(value) do
+  def enum_to_value(key, value) when is_atom(key) and is_atom(value) do
     Keyword.get(Ecto.Enum.mappings(__MODULE__, key), value)
   end
 
@@ -159,6 +165,11 @@ defmodule Shared.Data.Schemas.Character do
     |> Changeset.cast(params, @permitted)
     |> Changeset.cast_embed(:position,
       with: &position_changeset/2,
+      on_replace: :update,
+      required: true
+    )
+    |> Changeset.cast_embed(:look,
+      with: &look_changeset/2,
       on_replace: :update,
       required: true
     )
@@ -193,6 +204,15 @@ defmodule Shared.Data.Schemas.Character do
     mod
     |> Changeset.cast(params, ~w(x y z orientation identification)a)
     |> Changeset.validate_required(~w(x y z orientation identification)a)
+  end
+
+  defp look_changeset(mod, params) when is_map(params) do
+    mod
+    |> Changeset.cast(
+      params,
+      ~w(skin face hair_style hair_colour facial_hair rest_state)a
+    )
+    |> Changeset.validate_required(~w(skin face hair_style hair_colour facial_hair rest_state)a)
   end
 
   defp honour_changeset(mod, params) when is_map(params) do

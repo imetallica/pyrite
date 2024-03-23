@@ -12,8 +12,7 @@ defmodule Shared.Data.Repo.Migrations.CreateCharactersTable do
       add :level, :integer, null: false, default: 0
       add :xp, :integer, null: false, default: 0
       add :money, :integer, null: false, default: 0
-      add :player_bytes, :integer, null: false, default: 0
-      add :player_bytes2, :integer, null: false, default: 0
+      add :look, :jsonb, null: false
       add :map, :integer, null: false, default: 0
       add :zone, :integer, null: false, default: 0
       add :taximask, :text

@@ -60,6 +60,110 @@ defmodule Shared.Data.Dbc.AreaTable do
       light_id: 0
     }
 
+  def blasted_lands,
+    do: %__MODULE__{
+      id: 4,
+      continent_id: Map.azeroth(),
+      parent_area_id: none(),
+      area_bit: 122,
+      flags: 64,
+      exploration_level: 0,
+      area_name: %TranslatableString{en: "Blasted Lands"},
+      faction_group_mask: :none,
+      light_id: 0
+    }
+
+  def blackwater_cove,
+    do: %__MODULE__{
+      id: 7,
+      continent_id: Map.azeroth(),
+      parent_area_id: stranglethorn_vale(),
+      area_bit: 123,
+      flags: 64,
+      exploration_level: 0,
+      area_name: %TranslatableString{en: "Blackwater Cove"},
+      faction_group_mask: :none,
+      light_id: 0
+    }
+
+  def swamp_of_sorrows,
+    do: %__MODULE__{
+      id: 8,
+      continent_id: Map.azeroth(),
+      parent_area_id: none(),
+      area_bit: 124,
+      flags: 64,
+      exploration_level: 0,
+      area_name: %TranslatableString{en: "Swamp of Sorrows"},
+      faction_group_mask: :none,
+      light_id: 0
+    }
+
+  def northshire_valley,
+    do: %__MODULE__{
+      id: 9,
+      continent_id: Map.azeroth(),
+      parent_area_id: elwynn_forest(),
+      area_bit: 125,
+      flags: 64,
+      exploration_level: 0,
+      area_name: %TranslatableString{en: "Northshire Valley"},
+      faction_group_mask: :none,
+      light_id: 0
+    }
+
+  def duskwood,
+    do: %__MODULE__{
+      id: 10,
+      continent_id: Map.azeroth(),
+      parent_area_id: none(),
+      area_bit: 617,
+      flags: 64,
+      exploration_level: 0,
+      area_name: %TranslatableString{en: "Duskwood"},
+      faction_group_mask: :none,
+      light_id: 0
+    }
+
+  def wetlands,
+    do: %__MODULE__{
+      id: 11,
+      continent_id: Map.azeroth(),
+      parent_area_id: none(),
+      area_bit: 618,
+      flags: 64,
+      exploration_level: 0,
+      area_name: %TranslatableString{en: "Wetlands"},
+      faction_group_mask: :none,
+      light_id: 0
+    }
+
+  def elwynn_forest,
+    do: %__MODULE__{
+      id: 12,
+      continent_id: Map.azeroth(),
+      parent_area_id: none(),
+      area_bit: 126,
+      flags: 64,
+      exploration_level: 0,
+      area_name: %TranslatableString{en: "Elwynn Forest"},
+      faction_group_mask: :alliance,
+      light_id: 0
+    }
+
+  def stranglethorn_vale,
+    do: %__MODULE__{
+      id: 33,
+      continent_id: Map.azeroth(),
+      parent_area_id: none(),
+      area_bit: 140,
+      flags: 64,
+      exploration_level: 0,
+      area_name: %TranslatableString{en: "Stranglethorn Vale"},
+      faction_group_mask: :none,
+      light_id: 0
+    }
+
   def westfall,
     do: %__MODULE__{
       id: 40,
