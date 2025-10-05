@@ -26,16 +26,16 @@ defmodule Game.Proto.Packet do
   def handle(
         <<_::unsigned-big-integer-size(16), @cmsg_ping::unsigned-little-integer-size(32),
           msg::binary>>,
-        state = %Acceptor{}
+        acceptor = %Acceptor{}
       ) do
-    CmsgPing.handle_packet(msg, state)
+    CmsgPing.handle_packet(msg, acceptor)
   end
 
   def handle(
         <<_::unsigned-big-integer-size(16), @cmsg_char_enum::unsigned-little-integer-size(32)>>,
-        state = %Acceptor{}
+        acceptor = %Acceptor{}
       ) do
-    CmsgCharEnum.handle_packet(nil, state)
+    CmsgCharEnum.handle_packet(nil, acceptor)
   end
 
   def handle(

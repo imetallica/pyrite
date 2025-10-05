@@ -21,7 +21,8 @@ defmodule Pyrite.MixProject do
   defp deps do
     [
       {:credo, "> 0.0.0", runtime: false, only: [:dev, :test]},
-      {:dialyxir, "> 0.0.0", runtime: false, only: [:dev, :test]}
+      {:dialyxir, "> 0.0.0", runtime: false, only: [:dev, :test]},
+      {:styler, "> 0.0.0", runtime: false, only: [:dev, :test]}
     ]
   end
 end
