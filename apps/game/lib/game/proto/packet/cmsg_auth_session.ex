@@ -3,6 +3,7 @@ defmodule Game.Proto.Packet.CmsgAuthSession do
   Handles the cmsg_auth_session packet.
   """
   alias Game.Socket.Acceptor
+  alias Shared.Auth.GameProof
   alias Shared.Data.AccountHandler
   alias Shared.SupportedBuilds
   alias Game.Proto.AccountResultValues
@@ -82,21 +83,9 @@ defmodule Game.Proto.Packet.CmsgAuthSession do
     end
   end
 
-  # @n <<0x894B645E89E1535BBDAD5B8B290650530801B18EBFBF5E8FAB3C82872A3E9BB7::unsigned-big-integer-size(
-  #        256
-  #      )>>
-
-  # @g <<7::size(8)>>
-
   defp handle(%__MODULE__{} = packet, acceptor = %Acceptor{}) do
     session = World.get_session(packet.username)
     account = AccountHandler.get_by_username(packet.username)
-
-    # v = account.verifier
-    # s = account.salt
-    # key = account.session_key
-
-    # TODO: Handle sha check of the client.
 
     cond do
       is_nil(account) ->
@@ -106,6 +95,28 @@ defmodule Game.Proto.Packet.CmsgAuthSession do
         |> SmsgAuthResponse.new()
         |> SmsgAuthResponse.to_binary()
         |> then(fn result -> {:error, result} end)
+
+      is_nil(account.session_key) ->
+        Logger.warning("No session key for account: #{packet.username}.")
+
+        [result: AccountResultValues.auth_reject()]
+        |> SmsgAuthResponse.new()
+        |> SmsgAuthResponse.to_binary()
+        |> then(fn result -> {:error, result} end)
+
+      not GameProof.verify?(
+        account.session_key,
+        packet.username,
+        packet.client_seed,
+        acceptor.seed,
+        packet.client_proof
+      ) ->
+        Logger.warning("Invalid proof for account: #{packet.username}.")
+
+        [result: AccountResultValues.auth_bad_server_proof()]
+        |> SmsgAuthResponse.new()
+        |> SmsgAuthResponse.to_binary(account.session_key, acceptor.key_state_encrypt)
+        |> then(fn {result, _} -> {:error, result} end)
 
       not is_nil(session) ->
         Logger.error("Session already exists for the player: #{session.username}.")

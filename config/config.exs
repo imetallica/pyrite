@@ -9,25 +9,26 @@
 # move said applications out of the umbrella.
 import Config
 
-config :shared,
-  ecto_repos: [Shared.Data.Repo]
-
-config :shared, Shared.Data.Repo,
-  adapter: Ecto.Adapters.Postgres,
-  database: "pyrite_dev",
-  username: "postgres",
-  password: "postgres",
-  hostname: "localhost"
+alias Shared.Data.Repo
 
 config :logger, :console,
   level: :debug,
   format: "$date $time [$level] | $metadata| $message\n",
   metadata: [:module, :pid]
 
-# Sample configuration:
-#
-#     config :logger, :console,
-#       level: :info,
-#       format: "$date $time [$level] $metadata$message\n",
-#       metadata: [:user_id]
-#
+config :shared, Repo,
+  adapter: Ecto.Adapters.Postgres,
+  database: "pyrite_dev",
+  username: "postgres",
+  password: "postgres",
+  hostname: "localhost"
+
+config :shared,
+  # Sample configuration:
+  #
+  #     config :logger, :console,
+  #       level: :info,
+  #       format: "$date $time [$level] $metadata$message\n",
+  #       metadata: [:user_id]
+  #
+  ecto_repos: [Repo]
