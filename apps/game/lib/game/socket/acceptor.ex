@@ -61,10 +61,10 @@ defmodule Game.Socket.Acceptor do
 
     Process.flag(:trap_exit, true)
 
-    {:ok, socket, {:continue, :send_smsg_auth_challenge}}
+    {:ok, %__MODULE__{socket: socket}, {:continue, :send_smsg_auth_challenge}}
   end
 
-  def handle_continue(:send_smsg_auth_challenge, socket) do
+  def handle_continue(:send_smsg_auth_challenge, state = %__MODULE__{socket: socket}) do
     start = System.system_time(:millisecond)
 
     with :ok <-
@@ -90,7 +90,12 @@ defmodule Game.Socket.Acceptor do
       Logger.debug("[SMSG_AUTH_CHALLENGE] Sending packet to: #{inspect(address)}.")
 
       {:noreply,
-       %__MODULE__{address: to_string(address), seed: auth_challenge.challenge, socket: socket}}
+       %__MODULE__{
+         state
+         | address: to_string(address),
+           seed: auth_challenge.challenge,
+           socket: socket
+       }}
     end
   end
 
@@ -107,7 +112,7 @@ defmodule Game.Socket.Acceptor do
              %{socket: state.socket}
            ),
          :ok <- :inet.setopts(socket, active: :once),
-         {:ok, data, acceptor} <- handle_packet(msg, socket, state),
+         {:ok, data, state} <- handle_packet(msg, socket, state),
          :ok <- :gen_tcp.send(socket, data),
          :ok <-
            :telemetry.execute(
@@ -118,7 +123,7 @@ defmodule Game.Socket.Acceptor do
              %{socket: state.socket}
            ) do
       Logger.debug("Sent packet: #{inspect(data)}.")
-      {:noreply, acceptor}
+      {:noreply, state}
     end
   end
 
@@ -136,7 +141,7 @@ defmodule Game.Socket.Acceptor do
              %{socket: state.socket}
            ),
          :ok <- :inet.setopts(socket, active: :once),
-         {:ok, data, acceptor} <- handle_encrypted_packet(msg, socket, state),
+         {:ok, data, state} <- handle_encrypted_packet(msg, socket, state),
          :ok <- :gen_tcp.send(socket, data),
          :ok <-
            :telemetry.execute(
@@ -147,7 +152,7 @@ defmodule Game.Socket.Acceptor do
              %{socket: state.socket}
            ) do
       Logger.debug("Sent packet: #{inspect(data)}.")
-      {:noreply, acceptor}
+      {:noreply, state}
     end
   end
 

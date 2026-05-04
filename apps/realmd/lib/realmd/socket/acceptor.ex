@@ -59,7 +59,10 @@ defmodule Realmd.Socket.Acceptor do
   end
 
   @logon_challenge Opcodes.logon_challenge()
-  def handle_info({:tcp, socket, <<@logon_challenge::size(8), msg::binary>>}, state) do
+  def handle_info(
+        {:tcp, socket, <<@logon_challenge::size(8), msg::binary>>},
+        state = %__MODULE__{}
+      ) do
     Logger.debug("Received logon challenge: #{inspect(msg)}.")
     :inet.setopts(socket, active: :once)
 
@@ -81,7 +84,7 @@ defmodule Realmd.Socket.Acceptor do
   end
 
   @logon_proof Opcodes.logon_proof()
-  def handle_info({:tcp, socket, <<@logon_proof::size(8), msg::binary>>}, state) do
+  def handle_info({:tcp, socket, <<@logon_proof::size(8), msg::binary>>}, state = %__MODULE__{}) do
     Logger.debug("Received logon proof: #{inspect(msg)}.")
     :inet.setopts(socket, active: :once)
 
