@@ -39,17 +39,20 @@ defmodule Game.Proto.Packet.SmsgCharEnum do
 
   defp add_characters(acc, characters) do
     Enum.reduce(characters, acc, fn char = %Character{}, acc ->
+      equipment_data = encode_equipment(char.equipment)
+
       [
+        equipment_data,
         <<char.pet_family::unsigned-little-integer-size(32)>>,
         <<char.pet_level::unsigned-little-integer-size(32)>>,
         <<char.pet_display_id::unsigned-little-integer-size(32)>>,
-        <<char.first_login::size(1)>>,
+        <<char.first_login::unsigned-integer-size(8)>>,
         <<char.flags::unsigned-little-integer-size(32)>>,
         <<char.guild_id::unsigned-little-integer-size(32)>>,
-        <<char.position_z::unsigned-little-float>>,
-        <<char.position_y::unsigned-little-float>>,
-        <<char.position_x::unsigned-little-float>>,
-        <<char.map::unsigned-little-integer-size(8)>>,
+        <<char.position_z::float-little-32>>,
+        <<char.position_y::float-little-32>>,
+        <<char.position_x::float-little-32>>,
+        <<char.map::unsigned-little-integer-size(32)>>,
         <<char.area::unsigned-little-integer-size(32)>>,
         <<char.level::unsigned-big-integer-size(8)>>,
         <<char.facialhair::unsigned-big-integer-size(8)>>,
@@ -60,10 +63,40 @@ defmodule Game.Proto.Packet.SmsgCharEnum do
         <<char.gender::unsigned-big-integer-size(8)>>,
         <<char.class::unsigned-big-integer-size(8)>>,
         <<char.race::unsigned-big-integer-size(8)>>,
-        <<char.name::utf8>>,
+        <<char.name::binary, 0>>,
         <<char.guid::unsigned-little-integer-size(64)>> | acc
       ]
     end)
+  end
+
+  defp encode_equipment(equipment) when is_list(equipment) do
+    slot_count = Character.equipment_slots()
+
+    equipment
+    |> Enum.take(slot_count)
+    |> Enum.map(fn %{display_id: display_id, inventory_type: inventory_type} ->
+      <<display_id::unsigned-little-integer-size(32), inventory_type::unsigned-integer-size(8)>>
+    end)
+    |> then(fn slots ->
+      current = length(slots)
+
+      padding =
+        List.duplicate(
+          <<0::unsigned-little-integer-size(32), 0::unsigned-integer-size(8)>>,
+          slot_count - current
+        )
+
+      slots ++ padding
+    end)
+    |> Enum.reduce(<<>>, &(&2 <> &1))
+  end
+
+  defp encode_equipment(_equipment) do
+    List.duplicate(
+      <<0::unsigned-little-integer-size(32), 0::unsigned-integer-size(8)>>,
+      Character.equipment_slots()
+    )
+    |> Enum.reduce(<<>>, &(&2 <> &1))
   end
 
   defp add_size(packets) do

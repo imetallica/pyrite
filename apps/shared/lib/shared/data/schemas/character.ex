@@ -3,8 +3,10 @@ defmodule Shared.Data.Schemas.Character do
   The schema for the characters table.
   """
   alias Ecto.Changeset
+  alias Shared.Data.Dbc.AreaTable
   alias Shared.Data.Dbc.ChrClasses
   alias Shared.Data.Dbc.ChrRaces
+  alias Shared.Data.Dbc.Map
   alias Shared.Data.Schemas.Account
   alias Shared.Data.Schemas.Pet
 
@@ -64,8 +66,27 @@ defmodule Shared.Data.Schemas.Character do
       field(:rest_state, Ecto.Enum, values: [rested: 0x01, normal: 0x02, unknown: 0x04])
     end
 
-    field(:map, Ecto.Enum, values: [east: 0, west: 1])
-    field(:zone, Ecto.Enum, values: [])
+    field(:map, Ecto.Enum,
+      values: [
+        azeroth: Map.azeroth().id,
+        kalimdor: Map.kalimdor().id
+      ]
+    )
+
+    field(:zone, Ecto.Enum,
+      values: [
+        dun_moron: AreaTable.dun_moron().id,
+        longshore: AreaTable.longshore().id,
+        badlands: AreaTable.badlands().id,
+        blasted_lands: AreaTable.blasted_lands().id,
+        swamp_of_sorrows: AreaTable.swamp_of_sorrows().id,
+        northshire_valley: AreaTable.northshire_valley().id,
+        duskwood: AreaTable.duskwood().id,
+        elwynn_forest: AreaTable.elwynn_forest().id,
+        stranglethorn_vale: AreaTable.stranglethorn_vale().id,
+        westfall: AreaTable.westfall().id
+      ]
+    )
 
     field(:taximask, :string)
     field(:taxipath, :string)
@@ -118,7 +139,7 @@ defmodule Shared.Data.Schemas.Character do
 
     field(:explored_zones, {:array, :integer}, default: [])
     field(:equipment_cache, {:array, :integer}, default: [])
-    field(:ammo_id, :integer)
+    field(:ammo_id, :integer, default: 0)
 
     timestamps()
   end
@@ -154,10 +175,19 @@ defmodule Shared.Data.Schemas.Character do
     ammo_id
   )a
 
-  @required @permitted -- ~w(taximask taxipath)a
+  @required @permitted -- ~w(taximask taxipath death_expiration_time)a
 
   def enum_to_value(key, value) when is_atom(key) and is_atom(value) do
-    Keyword.get(Ecto.Enum.mappings(__MODULE__, key), value)
+    __MODULE__
+    |> Ecto.Enum.mappings(key)
+    |> Keyword.get(value)
+  end
+
+  @spec value_to_enum(atom(), integer()) :: atom() | nil
+  def value_to_enum(key, value) when is_atom(key) and is_integer(value) do
+    __MODULE__
+    |> Ecto.Enum.mappings(key)
+    |> Enum.find_value(fn {atom, int} -> if int == value, do: atom end)
   end
 
   def changeset(mod \\ %__MODULE__{}, params) when is_map(params) do

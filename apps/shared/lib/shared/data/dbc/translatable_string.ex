@@ -4,6 +4,8 @@ defmodule Shared.Data.Dbc.TranslatableString do
   """
   use Ecto.Schema
 
+  @type t() :: %__MODULE__{en: String.t()}
+
   @primary_key false
   embedded_schema do
     field(:en, :string)

@@ -5,6 +5,7 @@ defmodule Game.Proto.Opcodes do
 
   def cmsg_char_create, do: 0x036
   def cmsg_char_enum, do: 0x037
+  def smsg_char_create, do: 0x03A
   def smsg_char_enum, do: 0x03B
   def cmsg_ping, do: 0x1DC
   def smsg_pong, do: 0x1DD

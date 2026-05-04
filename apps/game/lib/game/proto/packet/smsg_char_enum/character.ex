@@ -1,4 +1,6 @@
 defmodule Game.Proto.Packet.SmsgCharEnum.Character do
+  @equipment_slots 20
+
   defstruct [
     :guid,
     :name,
@@ -21,9 +23,11 @@ defmodule Game.Proto.Packet.SmsgCharEnum.Character do
     :first_login,
     :pet_display_id,
     :pet_level,
-    :pet_family
+    :pet_family,
+    equipment: []
   ]
 
+  @type equipment_slot :: %{display_id: non_neg_integer(), inventory_type: non_neg_integer()}
   @type t() :: %__MODULE__{
           guid: non_neg_integer(),
           name: String.t(),
@@ -43,9 +47,13 @@ defmodule Game.Proto.Packet.SmsgCharEnum.Character do
           position_z: float(),
           guild_id: non_neg_integer(),
           flags: non_neg_integer(),
-          first_login: boolean(),
+          first_login: non_neg_integer(),
           pet_display_id: non_neg_integer(),
           pet_level: non_neg_integer(),
-          pet_family: non_neg_integer()
+          pet_family: non_neg_integer(),
+          equipment: [equipment_slot()]
         }
+
+  @spec equipment_slots() :: non_neg_integer()
+  def equipment_slots, do: @equipment_slots
 end

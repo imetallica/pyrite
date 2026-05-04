@@ -5,6 +5,7 @@ defmodule Game.Proto.Packet do
   """
   alias Game.Proto.Opcodes
   alias Game.Proto.Packet.CmsgAuthSession
+  alias Game.Proto.Packet.CmsgCharCreate
   alias Game.Proto.Packet.CmsgCharEnum
   alias Game.Proto.Packet.CmsgPing
   alias Game.Socket.Acceptor
@@ -12,6 +13,7 @@ defmodule Game.Proto.Packet do
   require Logger
 
   @cmsg_auth_session Opcodes.cmsg_auth_session()
+  @cmsg_char_create Opcodes.cmsg_char_create()
   @cmsg_char_enum Opcodes.cmsg_char_enum()
   @cmsg_ping Opcodes.cmsg_ping()
 
@@ -36,6 +38,14 @@ defmodule Game.Proto.Packet do
         acceptor = %Acceptor{}
       ) do
     CmsgCharEnum.handle_packet(nil, acceptor)
+  end
+
+  def handle(
+        <<_::unsigned-big-integer-size(16), @cmsg_char_create::unsigned-little-integer-size(32),
+          msg::binary>>,
+        acceptor = %Acceptor{}
+      ) do
+    CmsgCharCreate.handle_packet(msg, acceptor)
   end
 
   def handle(

@@ -81,7 +81,7 @@ defmodule Game.Proto.AccountResultValues do
   # CHAR LOGIN
   def char_login_in_progress, do: 0x3C
   def char_login_success, do: 0x3D
-  def char_login_no_Game, do: 0x3E
+  def char_login_no_game, do: 0x3E
   def char_login_duplicate_character, do: 0x3F
   def char_login_no_instances, do: 0x40
   def char_login_failed, do: 0x41

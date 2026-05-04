@@ -6,6 +6,13 @@ defmodule Shared.Data.Dbc.ChrClasses do
 
   use Ecto.Schema
 
+  @type t() :: %__MODULE__{
+          id: non_neg_integer(),
+          power_type: non_neg_integer(),
+          spell_family: non_neg_integer(),
+          name: TranslatableString.t()
+        }
+
   @primary_key {:id, :id, []}
   embedded_schema do
     field(:power_type, :integer)
@@ -74,4 +81,18 @@ defmodule Shared.Data.Dbc.ChrClasses do
       spell_family: 7,
       name: %TranslatableString{en: "Druid"}
     }
+
+  @spec all() :: [t(), ...]
+  def all,
+    do: [
+      warrior(),
+      paladin(),
+      hunter(),
+      rogue(),
+      priest(),
+      shaman(),
+      mage(),
+      warlock(),
+      druid()
+    ]
 end

@@ -20,7 +20,6 @@ defmodule Game.Proto.Packet.CmsgCharEnum do
 
     account
     |> CharacterHandler.all()
-    |> Enum.take(10)
     |> then(fn characters ->
       Enum.reduce(
         characters,
@@ -31,7 +30,24 @@ defmodule Game.Proto.Packet.CmsgCharEnum do
             name: dbc.name,
             race: Character.enum_to_value(:race, dbc.race),
             class: Character.enum_to_value(:class, dbc.class),
-            gender: Character.enum_to_value(:gender, dbc.gender)
+            gender: Character.enum_to_value(:gender, dbc.gender),
+            skin: dbc.look.skin,
+            face: dbc.look.face,
+            hairstyle: dbc.look.hair_style,
+            haircolor: dbc.look.hair_colour,
+            facialhair: dbc.look.facial_hair,
+            level: dbc.level,
+            area: Character.enum_to_value(:zone, dbc.zone),
+            map: Character.enum_to_value(:map, dbc.map),
+            position_x: dbc.position.x,
+            position_y: dbc.position.y,
+            position_z: dbc.position.z,
+            guild_id: 0,
+            flags: 0,
+            first_login: if(dbc.at_login, do: 1, else: 0),
+            pet_display_id: 0,
+            pet_level: 0,
+            pet_family: 0
           }
 
           %SmsgCharEnum{acc | characters: [char | acc.characters]}
