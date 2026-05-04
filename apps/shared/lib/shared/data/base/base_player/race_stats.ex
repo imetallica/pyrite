@@ -3,8 +3,8 @@ defmodule Shared.Data.Base.BasePlayer.RaceStats do
   This module represents the stats of a player
   in the emulator.
   """
-  alias Shared.Data.Dbc.ChrRaces
   alias Shared.Data.Dbc.ChrClasses
+  alias Shared.Data.Dbc.ChrRaces
   use Ecto.Schema
 
   @type t() :: %__MODULE__{

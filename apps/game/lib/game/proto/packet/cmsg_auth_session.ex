@@ -2,13 +2,13 @@ defmodule Game.Proto.Packet.CmsgAuthSession do
   @moduledoc """
   Handles the cmsg_auth_session packet.
   """
+  alias Game.Proto.AccountResultValues
+  alias Game.Proto.Packet.SmsgAuthResponse
   alias Game.Socket.Acceptor
+  alias Game.World
   alias Shared.Auth.GameProof
   alias Shared.Data.AccountHandler
   alias Shared.SupportedBuilds
-  alias Game.Proto.AccountResultValues
-  alias Game.Proto.Packet.SmsgAuthResponse
-  alias Game.World
 
   require Logger
 
@@ -58,7 +58,7 @@ defmodule Game.Proto.Packet.CmsgAuthSession do
     parse_username(rest, <<acc::binary, character>>)
   end
 
-  defp validate(%__MODULE__{} = packet) do
+  defp validate(packet = %__MODULE__{}) do
     Logger.debug("Validating cmsg_auth_session packet.")
 
     cond do
@@ -83,7 +83,7 @@ defmodule Game.Proto.Packet.CmsgAuthSession do
     end
   end
 
-  defp handle(%__MODULE__{} = packet, acceptor = %Acceptor{}) do
+  defp handle(packet = %__MODULE__{}, acceptor = %Acceptor{}) do
     session = World.get_session(packet.username)
     account = AccountHandler.get_by_username(packet.username)
 

@@ -2,8 +2,8 @@ defmodule Game.Socket.Acceptor do
   @moduledoc """
   The acceptor is a process who handles the interaction with the client.
   """
-  alias Game.Proto.Packet.SmsgAuthChallenge
   alias Game.Proto.Packet
+  alias Game.Proto.Packet.SmsgAuthChallenge
   alias Shared.BinaryData
   alias Shared.Crypto
   alias Shared.Crypto.Keystate
@@ -98,7 +98,6 @@ defmodule Game.Socket.Acceptor do
     start = System.system_time(:millisecond)
     Logger.debug("[UNENCRYPTED] Received packet: #{inspect(msg)} with size #{byte_size(msg)}.")
 
-    # TODO: Handle encrypted packets.
     with :ok <-
            :telemetry.execute(
              [:game, :acceptor, :begin],

@@ -1,4 +1,8 @@
 defmodule Shared.SupportedBuilds do
+  @moduledoc """
+  Supported WoW client build versions and their authenticator hashes.
+  """
+
   defstruct [
     :build,
     :major_version,

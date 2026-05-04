@@ -1,4 +1,8 @@
 defmodule Shared.Crypto.Keystate do
+  @moduledoc """
+  Tracks the evolving state of packet encryption/decryption keys.
+  """
+
   defstruct key_state: 0, key_index: 0
 
   @type t() :: %__MODULE__{
@@ -7,5 +11,5 @@ defmodule Shared.Crypto.Keystate do
         }
 
   @spec new() :: t()
-  def new(), do: %__MODULE__{}
+  def new, do: %__MODULE__{}
 end

@@ -2,8 +2,8 @@ defmodule Shared.Data.Schemas.Pet do
   @moduledoc """
   Character pet data.
   """
-  alias Shared.Data.Schemas.Character
   alias Ecto.Changeset
+  alias Shared.Data.Schemas.Character
 
   use Ecto.Schema
 

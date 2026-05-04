@@ -19,6 +19,17 @@ defmodule Shared.Data.CharacterHandler do
     Repo.all(query)
   end
 
+  @spec count_by_account(Account.t()) :: non_neg_integer()
+  def count_by_account(%Account{id: id}) do
+    query =
+      from(c in Character,
+        where: c.account_id == ^id,
+        select: count(c.id)
+      )
+
+    Repo.one(query)
+  end
+
   @spec create(params :: map()) :: {:ok, Character.t()} | {:error, Changeset.t()}
   def create(params) when is_map(params) do
     params

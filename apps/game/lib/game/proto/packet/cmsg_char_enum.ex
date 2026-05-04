@@ -4,8 +4,8 @@ defmodule Game.Proto.Packet.CmsgCharEnum do
   from the server. It is sent by the client after receiving a
   successful SMSG_AUTH_RESPONSE.
   """
-  alias Game.Socket.Acceptor
   alias Game.Proto.Packet.SmsgCharEnum
+  alias Game.Socket.Acceptor
   alias Shared.Data.CharacterHandler
   alias Shared.Data.Schemas.Account
   alias Shared.Data.Schemas.Character

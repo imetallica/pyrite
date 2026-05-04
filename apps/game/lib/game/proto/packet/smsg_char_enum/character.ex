@@ -1,4 +1,8 @@
 defmodule Game.Proto.Packet.SmsgCharEnum.Character do
+  @moduledoc """
+  Struct representing a single character in the SMSG_CHAR_ENUM response.
+  """
+
   @equipment_slots 20
 
   defstruct [

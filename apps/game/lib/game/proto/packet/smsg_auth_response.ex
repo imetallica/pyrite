@@ -45,7 +45,7 @@ defmodule Game.Proto.Packet.SmsgAuthResponse do
   @auth_wait_queue AccountResultValues.auth_wait_queue()
 
   @spec to_binary(Game.Proto.Packet.SmsgAuthResponse.t()) :: [nonempty_binary(), ...]
-  def to_binary(%__MODULE__{} = packet) do
+  def to_binary(packet = %__MODULE__{}) do
     add_size([
       <<packet.opcode::unsigned-little-integer-size(16)>>,
       <<packet.result::unsigned-little-integer-size(32)>>
@@ -54,7 +54,7 @@ defmodule Game.Proto.Packet.SmsgAuthResponse do
 
   @spec to_binary(Game.Proto.Packet.SmsgAuthResponse.t(), binary(), non_neg_integer()) ::
           {[nonempty_binary(), ...], non_neg_integer()}
-  def to_binary(%__MODULE__{result: @auth_ok} = packet, encryption_key, current_key_state) do
+  def to_binary(packet = %__MODULE__{result: @auth_ok}, encryption_key, current_key_state) do
     [
       <<packet.opcode::unsigned-little-integer-size(16)>>,
       <<packet.result::unsigned-little-integer-size(32)>>,
@@ -66,7 +66,7 @@ defmodule Game.Proto.Packet.SmsgAuthResponse do
     |> encrypt_header(encryption_key, current_key_state)
   end
 
-  def to_binary(%__MODULE__{result: @auth_wait_queue} = packet, encryption_key, current_key_state) do
+  def to_binary(packet = %__MODULE__{result: @auth_wait_queue}, encryption_key, current_key_state) do
     [
       <<packet.opcode::unsigned-little-integer-size(16)>>,
       <<packet.result::unsigned-little-integer-size(32)>>,
@@ -79,7 +79,7 @@ defmodule Game.Proto.Packet.SmsgAuthResponse do
     |> encrypt_header(encryption_key, current_key_state)
   end
 
-  def to_binary(%__MODULE__{} = packet, encryption_key, current_key_state) do
+  def to_binary(packet = %__MODULE__{}, encryption_key, current_key_state) do
     [
       <<packet.opcode::unsigned-little-integer-size(16)>>,
       <<packet.result::unsigned-little-integer-size(32)>>

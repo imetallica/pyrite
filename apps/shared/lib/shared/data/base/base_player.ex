@@ -5,8 +5,8 @@ defmodule Shared.Data.Base.BasePlayer do
   """
   alias Shared.Data.Base.BasePlayer.ClassStats
   alias Shared.Data.Base.BasePlayer.RaceStats
-  alias Shared.Data.Dbc.ChrRaces
   alias Shared.Data.Dbc.ChrClasses
+  alias Shared.Data.Dbc.ChrRaces
 
   use Ecto.Schema
 

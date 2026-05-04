@@ -19,11 +19,11 @@ defmodule Realmd.Messages.LogonChallenge do
   The kind of authentication used is a modified version of SRP, version 6.
   More information about [SRP](http://srp.stanford.edu/design.html).
   """
-  alias Shared.BinaryData
-  alias Shared.Data.Schemas.Account
-  alias Shared.Data.AccountHandler
-  alias Shared.Auth.SRP6
   alias Realmd.Socket.Opcodes
+  alias Shared.Auth.SRP6
+  alias Shared.BinaryData
+  alias Shared.Data.AccountHandler
+  alias Shared.Data.Schemas.Account
 
   require Logger
 

@@ -2,10 +2,10 @@ defmodule Realmd.Messages.Realmlist do
   @moduledoc """
   Module responsible for handling the realmlist message.
   """
-  alias Realmd.Socket.Acceptor
-  alias Shared.Data.RealmHandler
   alias Realmd.Messages.Realmlist.Realm
+  alias Realmd.Socket.Acceptor
   alias Realmd.Socket.Opcodes
+  alias Shared.Data.RealmHandler
   require Logger
 
   defstruct [:account, :realms, :status, :build]
@@ -20,7 +20,7 @@ defmodule Realmd.Messages.Realmlist do
        status: :ok,
        account: acceptor.account,
        build: acceptor.build,
-       realms: Enum.map(realms, &Realm.build/1)
+       realms: Enum.map(realms, &Realm.build(&1, acceptor.account))
      }}
   end
 

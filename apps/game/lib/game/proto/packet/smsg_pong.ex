@@ -19,7 +19,7 @@ defmodule Game.Proto.Packet.SmsgPong do
 
   @spec to_binary(t(), binary(), non_neg_integer()) ::
           {[nonempty_binary(), ...], non_neg_integer()}
-  def to_binary(%__MODULE__{} = packet, encryption_key, key_state) do
+  def to_binary(packet = %__MODULE__{}, encryption_key, key_state) do
     [
       <<packet.opcode::unsigned-little-integer-size(16)>>,
       <<packet.sequence_id::unsigned-little-integer-size(32)>>

@@ -25,7 +25,7 @@ defmodule Game.Proto.Packet.SmsgCharEnum do
 
   @spec to_binary(t(), binary(), non_neg_integer()) ::
           {[nonempty_binary(), ...], non_neg_integer()}
-  def to_binary(%__MODULE__{} = packet, encryption_key, key_state) do
+  def to_binary(packet = %__MODULE__{}, encryption_key, key_state) do
     # Reverse order because well, we call Enum.reverse/1 at the end of the function
     [
       <<packet.amount_of_characters::unsigned-big-integer-size(8)>>,

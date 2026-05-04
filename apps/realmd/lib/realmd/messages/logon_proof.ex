@@ -9,12 +9,12 @@ defmodule Realmd.Messages.LogonProof do
   TODO: In this step, add support for checking WoW client version and patch handling.
   -----------------------------------------------------------------------------------
   """
-  alias Shared.Data.AccountHandler
-  alias Shared.SupportedBuilds
   alias Realmd.Socket.Acceptor
   alias Realmd.Socket.Opcodes
   alias Shared.Auth.SRP6
   alias Shared.BinaryData
+  alias Shared.Data.AccountHandler
+  alias Shared.SupportedBuilds
 
   require Logger
 
@@ -89,9 +89,6 @@ defmodule Realmd.Messages.LogonProof do
       lp.public_client_key
       |> SRP6.m2(server_m1, lp.session_key)
       |> then(fn m2 ->
-        # TODO: The session key should be shared to the game server and,
-        # maybe we create a new session there. We need erlang distribution
-        # for that.
         AccountHandler.set_session_key(
           String.upcase(acceptor.account.username),
           lp.session_key

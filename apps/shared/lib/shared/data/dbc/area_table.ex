@@ -2,8 +2,8 @@ defmodule Shared.Data.Dbc.AreaTable do
   @moduledoc """
   AreaTable data.
   """
-  alias Shared.Data.Dbc.TranslatableString
   alias Shared.Data.Dbc.Map
+  alias Shared.Data.Dbc.TranslatableString
 
   use Ecto.Schema
 

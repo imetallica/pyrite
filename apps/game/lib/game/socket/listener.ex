@@ -2,8 +2,8 @@ defmodule Game.Socket.Listener do
   @moduledoc """
   Module responsible for listening the sockets.
   """
-  alias Shared.Data.Schemas.Realm
   alias Game.Socket.Acceptor
+  alias Shared.Data.Schemas.Realm
 
   use GenServer
 

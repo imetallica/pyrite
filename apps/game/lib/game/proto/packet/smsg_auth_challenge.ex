@@ -22,7 +22,7 @@ defmodule Game.Proto.Packet.SmsgAuthChallenge do
     }
 
   @spec to_binary(t()) :: [binary()]
-  def to_binary(%__MODULE__{} = packet),
+  def to_binary(packet = %__MODULE__{}),
     do: [
       <<6::unsigned-big-integer-size(16)>>,
       <<packet.opcode::little-integer-size(16)>>,
