@@ -83,8 +83,12 @@ defmodule Shared.Data.Schemas.Character do
         northshire_valley: AreaTable.northshire_valley().id,
         duskwood: AreaTable.duskwood().id,
         elwynn_forest: AreaTable.elwynn_forest().id,
+        durotar: AreaTable.durotar().id,
         stranglethorn_vale: AreaTable.stranglethorn_vale().id,
-        westfall: AreaTable.westfall().id
+        westfall: AreaTable.westfall().id,
+        tirisfal_glades: AreaTable.tirisfal_glades().id,
+        teldrassil: AreaTable.teldrassil().id,
+        mulgore: AreaTable.mulgore().id
       ]
     )
 

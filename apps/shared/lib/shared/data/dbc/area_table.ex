@@ -176,4 +176,56 @@ defmodule Shared.Data.Dbc.AreaTable do
       faction_group_mask: :alliance,
       light_id: 0
     }
+
+  def durotar,
+    do: %__MODULE__{
+      id: 14,
+      continent_id: Map.kalimdor(),
+      parent_area_id: none(),
+      area_bit: 0,
+      flags: 64,
+      exploration_level: 0,
+      area_name: %TranslatableString{en: "Durotar"},
+      faction_group_mask: :horde,
+      light_id: 0
+    }
+
+  def tirisfal_glades,
+    do: %__MODULE__{
+      id: 85,
+      continent_id: Map.azeroth(),
+      parent_area_id: none(),
+      area_bit: 0,
+      flags: 64,
+      exploration_level: 0,
+      area_name: %TranslatableString{en: "Tirisfal Glades"},
+      faction_group_mask: :horde,
+      light_id: 0
+    }
+
+  def teldrassil,
+    do: %__MODULE__{
+      id: 141,
+      continent_id: Map.kalimdor(),
+      parent_area_id: none(),
+      area_bit: 0,
+      flags: 64,
+      exploration_level: 0,
+      area_name: %TranslatableString{en: "Teldrassil"},
+      faction_group_mask: :alliance,
+      light_id: 0
+    }
+
+  def mulgore,
+    do: %__MODULE__{
+      id: 215,
+      continent_id: Map.kalimdor(),
+      parent_area_id: none(),
+      area_bit: 0,
+      flags: 64,
+      exploration_level: 0,
+      area_name: %TranslatableString{en: "Mulgore"},
+      faction_group_mask: :horde,
+      light_id: 0
+    }
 end

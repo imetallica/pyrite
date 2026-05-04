@@ -9,10 +9,10 @@ defmodule Game.Proto.Packet.CmsgCharCreate do
   alias Game.Proto.AccountResultValues
   alias Game.Proto.Packet.SmsgCharCreate
   alias Game.Socket.Acceptor
+  alias Shared.Data.Base.BasePlayer.CreateInfo
   alias Shared.Data.CharacterHandler
   alias Shared.Data.Dbc.ChrClasses
   alias Shared.Data.Dbc.ChrRaces
-  alias Shared.Data.PlayerCreateInfo
   alias Shared.Data.Schemas.Character
 
   require Logger
@@ -95,38 +95,69 @@ defmodule Game.Proto.Packet.CmsgCharCreate do
   defp validate(parsed = %__MODULE__{}, acceptor = %Acceptor{}) do
     race = Enum.find(ChrRaces.all(), &(&1.id == parsed.race))
     class = Enum.find(ChrClasses.all(), &(&1.id == parsed.class))
-    current_characters = CharacterHandler.all(acceptor.account)
     normalised_name = normalize_name(parsed.character_name)
 
-    cond do
-      is_nil(race) or is_nil(class) ->
-        send_error(AccountResultValues.char_create_error(), acceptor)
+    with :ok <- validate_race_class(race, class),
+         :ok <- validate_name(parsed.character_name, normalised_name),
+         :ok <- validate_appearance(parsed),
+         :ok <- validate_character_count(acceptor.account) do
+      {:ok, %{parsed | character_name: normalised_name}, acceptor}
+    else
+      {:error, result_code} -> send_error(result_code, acceptor)
+    end
+  end
 
-      not String.printable?(parsed.character_name) ->
-        send_error(AccountResultValues.char_create_error(), acceptor)
+  defp validate_race_class(race, class) do
+    if is_nil(race) or is_nil(class),
+      do: {:error, AccountResultValues.char_create_error()},
+      else: :ok
+  end
+
+  defp validate_name(raw_name, normalised_name) do
+    cond do
+      not String.printable?(raw_name) ->
+        {:error, AccountResultValues.char_create_error()}
 
       String.length(normalised_name) < @min_name_length ->
-        send_error(AccountResultValues.char_name_too_short(), acceptor)
+        {:error, AccountResultValues.char_name_too_short()}
 
       String.length(normalised_name) > @max_name_length ->
-        send_error(AccountResultValues.char_name_too_long(), acceptor)
+        {:error, AccountResultValues.char_name_too_long()}
 
-      Enum.count(current_characters) >= @max_characters_per_realm ->
-        send_error(AccountResultValues.char_create_account_limit(), acceptor)
-
-      :otherwise ->
-        {:ok, %{parsed | character_name: normalised_name}, acceptor}
+      true ->
+        :ok
     end
+  end
+
+  defp validate_appearance(parsed) do
+    cond do
+      parsed.gender not in 0..1 ->
+        {:error, AccountResultValues.char_create_error()}
+
+      not valid_appearance?(parsed) ->
+        {:error, AccountResultValues.char_create_error()}
+
+      true ->
+        :ok
+    end
+  end
+
+  defp validate_character_count(account) do
+    if Enum.count(CharacterHandler.all(account)) >= @max_characters_per_realm,
+      do: {:error, AccountResultValues.char_create_account_limit()},
+      else: :ok
   end
 
   defp handle(parsed = %__MODULE__{}, acceptor = %Acceptor{}) do
     Logger.debug("Creating character: #{parsed.character_name}.")
 
+    race = Enum.find(ChrRaces.all(), &(&1.id == parsed.race))
+    class = Enum.find(ChrClasses.all(), &(&1.id == parsed.class))
     race_atom = Character.value_to_enum(:race, parsed.race)
     class_atom = Character.value_to_enum(:class, parsed.class)
     gender_atom = Character.value_to_enum(:gender, parsed.gender)
 
-    case PlayerCreateInfo.for(race_atom, class_atom) do
+    case CreateInfo.new(race, class) do
       nil ->
         Logger.warning("Unsupported race/class combo: #{race_atom}/#{class_atom}")
         send_error(AccountResultValues.char_create_error(), acceptor)
@@ -137,6 +168,8 @@ defmodule Game.Proto.Packet.CmsgCharCreate do
   end
 
   defp create_character(parsed, acceptor, race_atom, class_atom, gender_atom, create_info) do
+    race_entry = Enum.find(ChrRaces.all(), &(&1.id == parsed.race))
+
     params = %{
       account_id: acceptor.account.id,
       name: parsed.character_name,
@@ -148,6 +181,7 @@ defmodule Game.Proto.Packet.CmsgCharCreate do
       money: 0,
       map: create_info.map,
       zone: create_info.zone,
+      taximask: Integer.to_string(race_entry.starting_taxi),
       online: false,
       cinematic: false,
       total_time: 0,
@@ -159,7 +193,7 @@ defmodule Game.Proto.Packet.CmsgCharCreate do
       extra_flags: 0,
       stable_slots: 0,
       at_login: true,
-      watched_faction: 0,
+      watched_faction: -1,
       explored_zones: [],
       equipment_cache: [],
       ammo_id: 0,
@@ -187,8 +221,8 @@ defmodule Game.Proto.Packet.CmsgCharCreate do
       },
       current_stats: %{
         drunk: 0,
-        health: create_info.base_health,
-        mana: create_info.base_mana,
+        health: create_info.class_stats.base_health,
+        mana: create_info.class_stats.base_mana,
         rage: 0,
         pet_focus: 0,
         energy: 0,
@@ -243,4 +277,9 @@ defmodule Game.Proto.Packet.CmsgCharCreate do
   end
 
   defp normalize_name(name), do: name
+
+  defp valid_appearance?(parsed) do
+    [parsed.skin, parsed.face, parsed.hairstyle, parsed.haircolor, parsed.facialhair]
+    |> Enum.all?(&(&1 in 0..255))
+  end
 end
