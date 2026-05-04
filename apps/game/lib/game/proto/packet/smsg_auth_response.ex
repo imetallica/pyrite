@@ -4,8 +4,7 @@ defmodule Game.Proto.Packet.SmsgAuthResponse do
   """
   alias Game.Proto.AccountResultValues
   alias Game.Proto.Opcodes
-  alias Shared.BinaryData
-  alias Shared.Crypto
+  alias Game.Proto.Packet.Serializer
 
   @type t() :: %__MODULE__{
           opcode: 0x1EE,
@@ -37,16 +36,14 @@ defmodule Game.Proto.Packet.SmsgAuthResponse do
   ]
 
   @spec new(Enumerable.t()) :: t()
-  def new(params) do
-    struct(__MODULE__, params)
-  end
+  def new(params), do: struct(__MODULE__, params)
 
   @auth_ok AccountResultValues.auth_ok()
   @auth_wait_queue AccountResultValues.auth_wait_queue()
 
   @spec to_binary(Game.Proto.Packet.SmsgAuthResponse.t()) :: [nonempty_binary(), ...]
   def to_binary(packet = %__MODULE__{}) do
-    add_size([
+    Serializer.add_size([
       <<packet.opcode::unsigned-little-integer-size(16)>>,
       <<packet.result::unsigned-little-integer-size(32)>>
     ])
@@ -62,8 +59,8 @@ defmodule Game.Proto.Packet.SmsgAuthResponse do
       <<packet.billing_flags::unsigned-big-integer-size(8)>>,
       <<packet.billing_rested::unsigned-little-integer-size(32)>>
     ]
-    |> add_size()
-    |> encrypt_header(encryption_key, current_key_state)
+    |> Serializer.add_size()
+    |> Serializer.encrypt_header(encryption_key, current_key_state)
   end
 
   def to_binary(packet = %__MODULE__{result: @auth_wait_queue}, encryption_key, current_key_state) do
@@ -75,8 +72,8 @@ defmodule Game.Proto.Packet.SmsgAuthResponse do
       <<packet.billing_rested::unsigned-little-integer-size(32)>>,
       <<packet.queue_position::unsigned-little-integer-size(32)>>
     ]
-    |> add_size()
-    |> encrypt_header(encryption_key, current_key_state)
+    |> Serializer.add_size()
+    |> Serializer.encrypt_header(encryption_key, current_key_state)
   end
 
   def to_binary(packet = %__MODULE__{}, encryption_key, current_key_state) do
@@ -84,24 +81,7 @@ defmodule Game.Proto.Packet.SmsgAuthResponse do
       <<packet.opcode::unsigned-little-integer-size(16)>>,
       <<packet.result::unsigned-little-integer-size(32)>>
     ]
-    |> add_size()
-    |> encrypt_header(encryption_key, current_key_state)
-  end
-
-  defp add_size(packets) do
-    size = Enum.reduce(packets, 0, &(byte_size(&1) + &2))
-    [<<size::unsigned-big-integer-size(16)>> | packets]
-  end
-
-  defp encrypt_header(packet, encryption_key, current_key_state) do
-    encryption_key = BinaryData.to_little_endian(encryption_key, byte_size(encryption_key) * 8)
-
-    {data, new_key_state} =
-      Crypto.encrypt(Enum.take(packet, 2), encryption_key, current_key_state)
-
-    {[
-       data
-       | Enum.slice(packet, 2..Enum.count(packet))
-     ], new_key_state}
+    |> Serializer.add_size()
+    |> Serializer.encrypt_header(encryption_key, current_key_state)
   end
 end

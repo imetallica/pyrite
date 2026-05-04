@@ -1,18 +1,5 @@
 defmodule Shared do
   @moduledoc """
-  Documentation for `Shared`.
+  Shared domain layer: database, authentication, crypto, and DBC data.
   """
-
-  @doc """
-  Hello Game.
-
-  ## Examples
-
-      iex> Shared.hello()
-      :Game
-
-  """
-  def hello do
-    :Game
-  end
 end
